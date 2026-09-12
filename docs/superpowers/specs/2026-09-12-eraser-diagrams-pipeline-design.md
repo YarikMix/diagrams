@@ -102,7 +102,8 @@ diagrams/
   icons.txt                          снимок каталога иконок, одно имя на строку
   diagrams/
     deployment.json                  топология: VPS, S3/CDN, клиент
-    cicd.json                        репозитории и пайплайны
+    ci.json                          GitHub-репозитории, CI-пайплайны и их цели
+    cd.json                          CD-пайплайны на VPS 5 / ARC и VPS 7 / Coolify
     integrations.json                внешние сервисы и кто с ними говорит
   scripts/
     fetch-icons.mjs                  обновляет icons.txt из GCS
@@ -169,13 +170,15 @@ Glob `diagrams/*.json` в Windows-шелле не раскроется сам, �
 
 ## 5. Диаграммы
 
-Три файла, содержимое мигрируется из `docs/reference/figjam-architecture-v3.xml`.
+Четыре файла, содержимое мигрируется из `docs/reference/figjam-architecture-v3.xml`.
 Скрытые (`hidden="true"`) элементы доски не переносятся.
 
 ### 5.1 `deployment.json`, топология
 
-- `Group` «Selectel» и внутри `Group` на каждый VPS 1–8 с подзаголовком
-  «Docker Compose» или «k8s». Содержимое:
+- `Group` «Selectel» и внутри одна `Group` на каждый VPS 1–8, без вложенной
+  группы под рантайм: «Docker Compose» или «k8s» идёт в заголовок
+  (`VPS 1 · Docker Compose`) и в `title.icon` (`docker` или `kubernetes`).
+  Содержимое:
   - VPS 1: Caddy, BFF (Hono), Node Exporter
   - VPS 2: Caddy, Go, Postgres, Node Exporter
   - VPS 3: Caddy, Grafana, Prometheus, Alloy, Loki, Tempo, Alert Manager
@@ -193,21 +196,68 @@ Glob `diagrams/*.json` в Windows-шелле не раскроется сам, �
   Client → CDN (`https://static.site.ru`), Client → Caddy VPS3 (`grafana.site.ru`),
   Client → Caddy VPS4 (`kuma.site.ru`).
 
-### 5.2 `cicd.json`, пайплайны
+### 5.2 `ci.json`, GitHub-репозитории и CI
 
 - `Group` «GitHub» с `Group` на каждый репозиторий: React, UI Kit, Frontend
   monorepo (client + BFF), Backend, E2E, Static, Deployments.
-- Внутри каждого репозитория пайплайны как цепочки `Icon` или `Activity`
-  со стрелками, содержание цепочек взято из комментариев в XML-экспорте.
-- `Group` «VPS 5 / k8s / ARC» с пайплайнами CD: Backend CD, BFF CD (внутри
-  Ansible playbook: Pull image → Compose up), Frontend CD с канареечным
-  релизом, Frontend Rollback, E2E.
-- `Group` «VPS 7 / Coolify»: два сценария, PR открыт и PR закрыт.
-- Цели пайплайнов как отдельные узлы: NPM Registry (`@my/react`, `@my/ui-kit`),
-  Docker Registry (bff image, backend image), S3, GitHub Pages (Storybook),
-  Allure TestOps, Relative CI, Telegram, unleash.
+- Внутри каждого репозитория пайплайны как цепочки `Activity` со стрелками,
+  содержание цепочек взято из комментариев в XML-экспорте:
+  - React release: Install deps → Lint → Build → Deploy to NPM → Send to tg.
+  - UI Kit release: Install deps → Lint → Build → Deploy to NPM → Send to tg.
+  - UI Kit Storybook deploy: Install deps → Build → Deploy to Pages → Send to tg.
+  - Frontend monorepo CI: detect affected → Install deps → Lint → Units →
+    Build → Send bundle stats → Send to tg.
+  - Backend CI: Build → Units → Lint → Build image → Send to tg. В экспорте
+    второй шаг тоже назван «Build», трактуем его как сборку образа.
+  - Static: Deploy to s3 → Send to tg.
+  - E2E repo: в экспорте пайплайна нет, только пустая секция. Рисуем группу
+    с одним узлом «Playwright tests» без цепочки; сам прогон E2E живёт в
+    `cd.json`.
+  - Deployments repo: не пайплайн, а шесть артефактов без стрелок:
+    Pulumi configs, caddy.conf, docker-compose.yml, monitoring configuration,
+    ansible roles / playbooks, ansible vault.
+- Цели как отдельные узлы вне «GitHub»: NPM Registry (`@my/react`,
+  `@my/ui-kit`), Docker Registry (bff image, backend image), GitHub Pages
+  (Storybook), Relative CI, S3 (для Static), Telegram.
+- Связи: Deploy to NPM → соответствующий пакет, Storybook deploy и UI Kit
+  release потребляют `@my/react` из NPM, Deploy to Pages → Storybook,
+  Send bundle stats → Relative CI, Build image → образ в Docker Registry,
+  Static Deploy to s3 → S3.
 
-### 5.3 `integrations.json`, внешние сервисы
+### 5.3 `cd.json`, CD-пайплайны
+
+- `Group` «VPS 5 / k8s / ARC» с пайплайнами как цепочками `Activity`:
+  - Backend CD: Pull image from registry → Run migrations →
+    Deploy (compose up) → Health check → Send to tg.
+  - BFF CD: Run ansible playbook → [`Group` «Ansible playbook»: Pull image →
+    Compose up] → Health check → Send to tg.
+  - Frontend CD: Build → Send bundle stats → Deploy to s3 → Register as
+    canary → Health check (canary) → наблюдение → Promote to stable →
+    Health check → Send to tg.
+  - Frontend Rollback: Switch release pointer → Health check → Send to tg.
+  - E2E: Run e2e → Upload to Allure TestOps → Send to tg.
+- В той же группе VPS 5 узлы moon и ReportPortal, связи `Run e2e → moon`
+  («remote browsers») и `Run e2e → ReportPortal` («live results»).
+- `Group` «VPS 7 / Coolify»: два сценария как цепочки `Activity`:
+  - PR фронта открыт: Clone branch → Build image → Deploy preview →
+    Assign subdomain + TLS.
+  - PR фронта закрыт: Destroy preview → Release subdomain / cert.
+- Цели как отдельные узлы: Docker Registry, S3, unleash, Allure TestOps,
+  Relative CI, Telegram.
+- Связи: Pull image → Docker Registry, Deploy to s3 → S3 («releases/<id>/»),
+  Promote to stable → S3 и Switch release pointer → S3 («current.json»),
+  Register as canary → unleash, Upload to Allure TestOps → Allure,
+  Send bundle stats → Relative CI.
+
+### 5.4 Правило для «Send to tg»
+
+Шаг «Send to tg» встречается в каждом пайплайне. Стрелки от каждого такого
+шага к узлу Telegram не рисуем, иначе схема превращается в паутину. Telegram
+остаётся одним узлом-целью, к нему идёт одна стрелка от каждой группы
+(«GitHub», «VPS 5 / k8s / ARC»), а не от каждого шага. Если и это мешает
+читаемости, стрелок к Telegram нет вовсе, узел остаётся как легенда.
+
+### 5.5 `integrations.json`, внешние сервисы
 
 - Узлы: Client, Caddy VPS1, Go VPS2, Alert Manager, App Tracer, ЮMoney API,
   ЮMoney страница оплаты, Cloudflare Turnstile, VK Cloud (VK ID, Voice,
@@ -216,7 +266,7 @@ Glob `diagrams/*.json` в Windows-шелле не раскроется сам, �
 - Связи с подписями-URL из экспорта: payment-callback, posthog.site.ru,
   backend alerts и frontend alerts в Telegram, One Signal sdk, faro-метрики.
 
-### 5.4 Соглашения для всех диаграмм
+### 5.6 Соглашения для всех диаграмм
 
 - `id` в kebab-case, уникальны внутри файла, осмысленны: `vps2-postgres`,
   а не `n17`.
@@ -245,8 +295,8 @@ Glob `diagrams/*.json` в Windows-шелле не раскроется сам, �
 5. Цикл правки: изменить JSON → `npm run validate` → `npm run render` →
    открыть `dist/<name>.png` через Read и глазами проверить, что ничего не
    наложилось и не вылезло за группу → поправить координаты → повторить.
-6. Соглашения из §5.4.
-7. Правило: одна диаграмма на файл, не сливать три схемы в одну.
+6. Соглашения из §5.6 и правило про «Send to tg» из §5.4.
+7. Правило: одна диаграмма на файл, не сливать схемы в одну.
 
 ## 7. CI/CD
 
@@ -275,7 +325,8 @@ Job `deploy`: `needs: build`, environment `github-pages`,
 
 Одноразовый ручной шаг: в настройках репозитория Pages → Source →
 GitHub Actions. Результат: `https://yarikmix.github.io/diagrams/`,
-диаграммы по `.../deployment.html`, `.../cicd.html`, `.../integrations.html`,
+диаграммы по `.../deployment.html`, `.../ci.html`, `.../cd.html`,
+`.../integrations.html`,
 PNG рядом.
 
 Кэш иконок `.eraser/icons` в CI кэшируется через `actions/cache` по хэшу
@@ -284,16 +335,16 @@ PNG рядом.
 
 ## 8. Тестирование и критерии приёмки
 
-- `npm run validate` проходит на трёх диаграммах.
+- `npm run validate` проходит на четырёх диаграммах.
 - `npm run build` локально на Windows и в CI на ubuntu даёт `dist/` с
-  `index.html`, тремя `.html`, тремя `.png`.
+  `index.html`, четырьмя `.html`, четырьмя `.png`.
 - Каждый `.html` автономен: `grep -c 'file://' dist/*.html` даёт 0,
   `grep -oE 'https?://[^"]+' dist/*.html` не находит ничего кроме
   `www.w3.org`.
 - Каждый PNG открыт и осмотрен агентом: узлы не накладываются, все узлы
   внутри своих групп, подписи читаемы.
 - В PR намеренно сломанный JSON (неизвестная иконка) роняет `ci.yml`.
-- После merge в `main` страница Pages открывается и показывает три схемы.
+- После merge в `main` страница Pages открывается и показывает четыре схемы.
 - `icons.txt` в репозитории, `npm run icons` его пересоздаёт без диффа.
 
 ## 9. Вне scope
@@ -315,7 +366,7 @@ PNG рядом.
 - **Ручные координаты.** Крупная перестановка узлов агентом дороже, чем в
   инструменте с автораскладкой. Принято осознанно ради вида диаграмм.
 - **Публичный репозиторий.** Схема инфраструктуры видна всем. Соглашение
-  §5.4 запрещает реальные адреса и секреты.
+  §5.6 запрещает реальные адреса и секреты.
 
 ## Приложение A. Вывод `eraser-diagrams render --help` (0.1.0)
 
