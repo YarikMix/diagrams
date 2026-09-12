@@ -1,0 +1,12 @@
+{
+  "format": "html",
+  "outDir": "./dist",
+  "deviceScaleFactor": 2,
+  "icons": {
+    "baseUrl": "https://storage.googleapis.com/eraser-public-assets/canvas-icons/",
+    "cacheDir": "./.eraser/icons",
+    "onUnknown": "error"
+  },
+  "fonts": "./fonts.json",
+  "failOnWarning": true
+}

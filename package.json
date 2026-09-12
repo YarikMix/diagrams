@@ -1,0 +1,17 @@
+{
+  "name": "diagrams",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.12" },
+  "scripts": {
+    "test": "node --test",
+    "validate": "node scripts/eraser.mjs validate",
+    "render": "node scripts/eraser.mjs render -f html && node scripts/eraser.mjs render -f png",
+    "index": "node scripts/build-index.mjs",
+    "build": "npm run validate && npm run render && npm run index",
+    "icons": "node scripts/fetch-icons.mjs"
+  },
+  "devDependencies": {
+    "@eraserlabs/diagrams-cli": "0.1.0"
+  }
+}

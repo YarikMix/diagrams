@@ -1,0 +1,12 @@
+{
+  "entities": [
+    { "tag": "Group", "id": "vps2", "x": 0, "y": 0, "width": 420, "height": 200, "isContainer": true, "title": { "text": "VPS 2", "icon": "docker" } },
+    { "tag": "Icon", "id": "vps2-caddy", "x": 20, "y": 60, "containerId": "vps2", "icon": "server", "texts": [{ "text": "Caddy" }] },
+    { "tag": "Icon", "id": "vps2-go", "x": 160, "y": 60, "containerId": "vps2", "icon": "go", "texts": [{ "text": "Go API" }] },
+    { "tag": "Icon", "id": "vps2-pg", "x": 300, "y": 60, "containerId": "vps2", "icon": "postgres", "texts": [{ "text": "Postgres" }] }
+  ],
+  "connections": [
+    { "tag": "Relationship", "from": "vps2-caddy", "to": "vps2-go", "label": "proxy" },
+    { "tag": "Relationship", "from": "vps2-go", "to": "vps2-pg" }
+  ]
+}
