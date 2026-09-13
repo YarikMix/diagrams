@@ -3,20 +3,33 @@ name: Pages
 on:
   push:
     branches:
-      - main
+      - "**"
+  delete:
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref == 'refs/heads/main' && 'main' || github.run_id }}
   cancel-in-progress: false
 
 jobs:
-  build:
+  dispatch:
+    if: github.event_name == 'push' && github.ref != 'refs/heads/main' && !github.event.deleted
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - run: gh workflow run pages.yml --ref main --repo "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  build:
+    if: github.ref == 'refs/heads/main' && (github.event_name != 'delete' || github.event.ref_type == 'branch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       CHROMIUM_PATH: /usr/bin/google-chrome
     steps:
@@ -35,7 +48,7 @@ jobs:
             icons-
       - run: bun install --frozen-lockfile
       - run: bun run test
-      - run: bun run build
+      - run: bun run site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
