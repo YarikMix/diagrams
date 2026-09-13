@@ -11,7 +11,7 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
 ## Формат, который принимает CLI 0.1.0
 
 - Документ: `{ "entities": [...], "connections": [...] }`.
-- Теги с учётом регистра: `Group`, `Icon`, `Activity`, `Textbox`, `Relationship`.
+- Теги с учётом регистра: `Group`, `Icon`, `Activity`, `Textbox`, `Legend`, `Relationship`. У `Legend` обязательна `width`.
   `group` не распознаётся.
 - У каждой сущности обязательны `tag`, `id`, `x`, `y`. У `Textbox` ещё `text`.
 - **Координаты абсолютные, даже у детей с `containerId`.** `containerId`
@@ -89,6 +89,10 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
 | `from` это `client` | `orange` | `solid` |
 | ровно один конец `Activity` | `black` | `dashed` |
 | всё остальное | не задавать | не задавать |
+
+- Узел пользователя всегда `"id": "client"`, узел Telegram всегда
+  `"id": "telegram"`. С другим id стрелки к ним станут «Прочие связи».
+  Для Telegram это ловит `bun run check`, для Client нет: проверь сам.
 
 Легенда: ровно один элемент `"tag": "Legend"` с `"id": "legend"`, явными
 `x`, `y` и `"width": 340`, без `color`, `containerId`, `styleMode`. Ставь её
