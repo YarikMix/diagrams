@@ -31,6 +31,7 @@ bun run validate   # схема и иконки, без браузера
 bun run check      # цветовая конвенция и легенды, без браузера
 bun run render     # dist/<name>.html и dist/<name>.png
 bun run build      # validate + check + render + dist/index.html
+bun run site       # build + превью всех веток origin в dist/branches/
 bun run icons      # обновить icons.txt из каталога иконок Eraser
 bun run test
 ```
@@ -51,5 +52,21 @@ CI на pull request валидирует и рендерит схемы, арт
 вручную: Settings → Pages → Build and deployment → Source → GitHub
 Actions, иначе job `deploy` падает с «Get Pages site failed».
 
+## Превью веток
+
+Push в любую ветку публикует её схемы по адресу
+`https://yarikmix.github.io/diagrams/branches/<slug>/`, где slug это имя
+ветки, в котором всё, кроме латиницы, цифр, `.`, `_` и `-`, заменено на
+`-`: `feature/new-vps` становится `feature-new-vps`. Список всех превью:
+**https://yarikmix.github.io/diagrams/branches/**
+
+Push в ветку запускает workflow Pages на `main`. Тот собирает `main` и все
+ветки их собственными скриптами (`bun run site`) и публикует единым
+сайтом, поэтому превью появляется через несколько минут. После удаления
+ветки её превью исчезает при следующем запуске. Ветка, которая не
+собралась, остаётся в списке с пометкой «не собралась» и шагом, на котором
+упала. Слитые ветки лучше удалять: каждая добавляет время сборки.
+
 Дизайн: `docs/superpowers/specs/2026-09-12-eraser-diagrams-pipeline-design.md`,
-`docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md`.
+`docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md`,
+`docs/superpowers/specs/2026-09-13-branch-previews-design.md`.

@@ -61,6 +61,10 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
    подписи читаемы, легенда ничего не перекрывает.
 6. Поправь координаты (кратно 20), повтори с шага 2.
 7. Перед коммитом: `bun run test` и `bun run build` (то же, что делает CI).
+8. После push ветки превью появится через несколько минут по адресу
+   `https://yarikmix.github.io/diagrams/branches/<slug>/`, где slug это имя
+   ветки, в котором всё, кроме латиницы, цифр, `.`, `_` и `-`, заменено на
+   `-`. Ссылку можно дать в PR.
 
 ## Цвета
 
