@@ -87,13 +87,16 @@ jobs:
       CHROMIUM_PATH: /usr/bin/google-chrome
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.3.13
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: actions/cache@v4
+      - id: icons
+        uses: actions/cache/restore@v4
         with:
           path: .eraser/icons
           key: icons-${{ hashFiles('diagrams/*.json') }}
@@ -101,7 +104,13 @@ jobs:
             icons-
       - run: bun install --frozen-lockfile
       - run: bun run test
-      - run: bun run site
+      - run: bun run build
+      - if: steps.icons.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .eraser/icons
+          key: icons-${{ hashFiles('diagrams/*.json') }}
+      - run: bun run site --main-built
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -130,8 +139,15 @@ jobs:
   запущенного, GitHub держит в очереди только последний ожидающий, и он
   пересобирает всё актуальное. Запуски `dispatch` получают уникальную группу
   и в очереди не стоят.
-- `timeout-minutes` у `build` растёт с 15 до 45: сайт собирает все ветки,
-  у каждой свой лимит 5 минут (§4).
+- `timeout-minutes` у `build` 45. Худший случай на ветку 10 минут
+  (установка и сборка по 5), поэтому ветки ограничены общим бюджетом
+  30 минут от начала `main()` (§4.1), и последняя начатая ветка
+  укладывается в лимит job.
+- `persist-credentials: false`: токен не остаётся в `.git/config`, общем
+  для worktree веток.
+- Кэш иконок восстанавливается до тестов и сохраняется сразу после
+  сборки `main`, до запуска кода веток; `bun run site --main-built` не
+  пересобирает `main`.
 - Шаг `bun run build` в `build` заменяется на `bun run site`, который сам
   вызывает `bun run build` для `main`.
 
@@ -142,39 +158,53 @@ jobs:
 
 ### 4.1 Порядок
 
-1. `bun run build` в текущем каталоге. Код выхода не 0: скрипт печатает
-   ошибку и выходит с кодом 1, ветки не собираются.
-2. `git fetch --depth=1 --no-tags origin +refs/heads/*:refs/remotes/origin/*`.
-   Ошибка fetch: выход 1.
+1. С флагом `--main-built` шаг `bun run build` пропускается: скрипт только
+   проверяет, что `dist/index.html` уже есть, иначе печатает ошибку и
+   выходит с кодом 1. Без флага `bun run build` запускается в текущем
+   каталоге; код выхода не 0: скрипт печатает ошибку и выходит с кодом 1,
+   ветки не собираются.
+2. `shallow` — вывод `git rev-parse --is-shallow-repository` равен
+   `"true"`. Дальше `fetchArgs(shallow)` (§4.2): `--depth=1` только для
+   неглубокого клона, `--no-tags` и `--prune` всегда. Ошибка fetch: выход 1.
 3. Список веток: `git for-each-ref --format=%(refname:strip=3) %(objectname) refs/remotes/origin`,
    без `HEAD` и `main`. Слаги по §4.2.
 4. Для каждой ветки по алфавиту:
+   0. Если с начала `main()` прошло больше `SITE_BRANCH_BUDGET_MS`
+      (30 минут), ветка получает статус `failed` и шаг `time budget` без
+      попытки сборки.
    1. `git worktree add --detach <tmp>/<slug> <sha>`, где `<tmp>` это
       `mkdtempSync(join(tmpdir(), "diagrams-previews-"))`.
    2. В каталоге ветки `bun install --frozen-lockfile`. Затем, если в
       основном каталоге есть `.eraser/icons`, он копируется в
       `.eraser/icons` ветки, чтобы ветка не качала заново те же иконки.
       Затем `bun run build`. У `bun install` и `bun run build` `timeout`
-      5 минут в `spawnSync`, `stdio: "inherit"`, переменные окружения
-      наследуются.
+      5 минут в `spawnSync`, `killSignal: "SIGKILL"`, `stdio: "inherit"`,
+      переменные окружения наследуются.
    3. Успех, если обе команды вышли с кодом 0 и есть `dist/index.html`.
       Тогда `dist/` ветки копируется в `dist/branches/<slug>/` основного
       каталога.
    4. Иначе статус `failed` и имя шага: `worktree`, `bun install`,
-      `bun run build`, `dist` или `copy`. Ошибка копирования кэша иконок
-      не роняет ветку, скрипт пишет предупреждение и продолжает.
+      `bun run build`, `dist` или `copy`; шаг, упавший по таймауту,
+      получает суффикс `(timeout)` (например `bun install (timeout)`).
+      Ошибка копирования кэша иконок не роняет ветку, скрипт пишет
+      предупреждение и продолжает.
    5. `git worktree remove --force <tmp>/<slug>` в любом случае.
-5. `dist/branches/index.html` по §5.
-6. `dist/index.html` перезаписывается `renderIndex(diagramNames(), { previewsHref: "branches/" })`.
-7. Если задана `GITHUB_STEP_SUMMARY`, в неё дописывается список веток со
+5. После цикла: `git worktree prune`, затем удаление `<tmp>` через
+   `rmSync(tmpRoot, { recursive: true, force: true, maxRetries: 3 })` в
+   `try/catch` — ошибка удаления только логируется, скрипт не падает.
+6. `dist/branches/index.html` по §5.
+7. `dist/index.html` перезаписывается `renderIndex(diagramNames(), { previewsHref: "branches/" })`.
+8. Если задана `GITHUB_STEP_SUMMARY`, в неё дописывается список веток со
    статусами.
-8. Выход 0, даже если какие-то ветки `failed`.
+9. Выход 0, даже если какие-то ветки `failed`.
 
 ### 4.2 Экспортируемые функции
 
 - `branchSlug(name: string): string`: символы вне `[A-Za-z0-9._-]` заменяются
   на `-`, подряд идущие `-` схлопываются, `-` по краям убираются; пустой
-  результат даёт `branch`.
+  результат или результат из одних точек даёт `branch`.
+- `fetchArgs(shallow: boolean): string[]`: аргументы `git fetch` — `--depth=1`
+  только для неглубокого клона, `--no-tags` и `--prune` всегда.
 - `assignSlugs(branches: { name: string, sha: string }[]): { name, sha, slug }[]`:
   сортирует по `name`; если slug уже занят, второй ветке даётся
   `<slug>-<первые 7 символов sha>`. Slug `index.html` считается занятым
@@ -275,12 +305,16 @@ jobs:
 
 - **Время деплоя растёт с числом веток.** Порядка полминуты на ветку плюс
   установка зависимостей. Слитые ветки нужно удалять.
-- **Код веток выполняется в job сборки.** У токена там только
-  `contents: read`, права на Pages только у job деплоя. Превью ветки
-  публикуется на том же домене, что и `main`; писать в ветки могут только
-  участники репозитория.
-- **Лимит в 45 минут.** При девяти и более ветках, упирающихся в пятиминутный
-  лимит, job упадёт; тогда лимит поднимается или ветки чистятся.
+- **Код веток выполняется в job, который публикует сайт.** Ветка (её
+  скрипты, lifecycle-скрипты зависимостей) может изменить весь `dist/` и
+  тем самым опубликованный сайт до следующего деплоя из `main`, а с
+  усилием дотянуться до токена кэша раннера. Смягчения:
+  `persist-credentials: false`, кэш иконок сохраняется до кода веток.
+  Полная изоляция (отдельный job или запуски на ref ветки с кэшем в её
+  области и передачей артефактов) не сделана и остаётся отдельной задачей.
+  Писать ветки могут только участники с правом push.
+- **Время.** Бюджет веток 30 минут; ветки, не начатые вовремя, помечаются
+  `time budget`. Деплой `main` не блокируется.
 - **Сбой GCS или сети при сборке ветки** даёт `failed` у ветки, а не падение
   деплоя. Проверено 2026-09-13: сборка ветки с пустым кэшем однажды упала с
   `E_UNKNOWN_ICON` на существующей иконке `monitor`, повтор прошёл. Копия

@@ -64,7 +64,8 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
 8. После push ветки превью появится через несколько минут по адресу
    `https://yarikmix.github.io/diagrams/branches/<slug>/`, где slug это имя
    ветки, в котором всё, кроме латиницы, цифр, `.`, `_` и `-`, заменено на
-   `-`. Ссылку можно дать в PR.
+   `-`. Ссылку можно дать в PR. Точный адрес в списке
+   `https://yarikmix.github.io/diagrams/branches/`.
 
 ## Цвета
 
