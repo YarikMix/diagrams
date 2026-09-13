@@ -41,6 +41,10 @@ function main(argv) {
   const result = spawnSync(process.execPath, [cliEntry(), ...buildArgs(command, files, extra)], {
     stdio: "inherit",
   });
+  if (result.error) {
+    console.error(result.error.message);
+    return 1;
+  }
   return result.status ?? 1;
 }
 

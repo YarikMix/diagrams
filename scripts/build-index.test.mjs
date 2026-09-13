@@ -1,12 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { diagramNames, renderIndex } from "./build-index.mjs";
 
-test("diagramNames: basenames of *.json without extension, sorted", () => {
+test("diagramNames: basenames of *.json without extension, sorted", (t) => {
   const dir = mkdtempSync(join(tmpdir(), "index-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
   writeFileSync(join(dir, "cd.json"), "{}");
   writeFileSync(join(dir, "ci.json"), "{}");
   writeFileSync(join(dir, "README.md"), "");
