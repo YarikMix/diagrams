@@ -1,6 +1,6 @@
 ---
 name: eraser-diagrams
-description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON) — required fields, absolute coordinates, icon lookup, validate → render → inspect loop
+description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON) — required fields, absolute coordinates, icon lookup, color convention and legend, validate → check → render → inspect loop
 ---
 
 # Правка диаграмм eraser-diagrams
@@ -48,17 +48,54 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
 
 ## Цикл правки
 
-1. Измени JSON.
+1. Измени JSON. Новые группы и стрелки сразу крась по разделу «Цвета».
 2. `bun run validate` — схема и иконки, без браузера.
-3. `bun run render` — `dist/<name>.html` и `dist/<name>.png`; рендерер
+3. `bun run check` — цветовая конвенция и легенда, без браузера. Сообщение
+   называет id элемента и нужные значения.
+4. `bun run render` — `dist/<name>.html` и `dist/<name>.png`; рендерер
    запускается под Node ≥ 22.12 из PATH (под bun Chrome не стартует); нужен
    Chrome или другой Chromium; если автопоиск не находит его, задай
    переменную `CHROMIUM_PATH`.
-4. Открой `dist/<name>.png` через Read и проверь глазами: узлы не
+5. Открой `dist/<name>.png` через Read и проверь глазами: узлы не
    накладываются, все узлы внутри своих групп, заголовки групп не обрезаны,
-   подписи читаемы.
-5. Поправь координаты (кратно 20), повтори с шага 2.
-6. Перед коммитом: `bun run test` и `bun run build` (то же, что делает CI).
+   подписи читаемы, легенда ничего не перекрывает.
+6. Поправь координаты (кратно 20), повтори с шага 2.
+7. Перед коммитом: `bun run test` и `bun run build` (то же, что делает CI).
+
+## Цвета
+
+Источник истины: `scripts/colors.mjs`, проверка: `bun run check`.
+Спека: `docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md` §4.
+
+Группы красятся по зоне владения:
+
+| Зона | `color` верхней группы |
+| --- | --- |
+| Наша инфраструктура: серверы и сервисы в Selectel | `blue` |
+| GitHub: репозитории и их пайплайны | `purple` |
+| Внешние сервисы: чужие SaaS и реестры | `green` |
+
+- Вложенная группа: `color` родителя и `"styleMode": "plain"`. У верхней
+  группы `styleMode` не задавай.
+- У иконок, шагов `Activity` и остальных элементов `color` не бывает, узлы
+  вне групп нейтральные.
+- Группа не подходит ни в одну зону: не выдумывай цвет, это правка спеки.
+
+Тип стрелки определяется только по её концам, правила сверху вниз:
+
+| Условие | `color` | `lineStyle` |
+| --- | --- | --- |
+| `to` это `telegram` | `red` | `dotted` |
+| `from` это `client` | `orange` | `solid` |
+| ровно один конец `Activity` | `black` | `dashed` |
+| всё остальное | не задавать | не задавать |
+
+Легенда: ровно один элемент `"tag": "Legend"` с `"id": "legend"`, явными
+`x`, `y` и `"width": 340`, без `color`, `containerId`, `styleMode`. Ставь её
+справа от содержимого на `y: 0`. Пункты: только зоны верхних групп и типы
+стрелок, которые есть на схеме, с текстом и hex из `scripts/colors.mjs`.
+Если правка поменяла состав зон или типов стрелок, `bun run check`
+напечатает нужный массив `entries`; скопируй его в легенду.
 
 ## Соглашения
 
@@ -66,7 +103,7 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
 - Подписи коротко, без URL внутри `texts`; URL только в `label` стрелки.
 - Хостнеймы-плейсхолдеры (`site.ru`) допустимы. Реальные IP, токены,
   внутренние адреса запрещены: репозиторий публичный.
-- Никаких `x-`-полей, цветов и стилей сверх необходимого.
+- Никаких `x-`-полей и стилей сверх необходимого. Цвета только по разделу «Цвета».
 - Стрелки к Telegram: одна от группы, не от каждого шага «Send to tg».
 - Связи не выдумывать: только те, что есть в исходнике или в задаче.
 
@@ -82,3 +119,5 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
   посреди слова; дай стрелке горизонтальный участок (сдвинь узел по x).
 - Роутер стрелок обходит иконки, но не заголовки групп: линия может
   пройти через полосу заголовка. Если текст читаем, это косметика.
+- Подписи с `https://` CLI рисует синим цветом ссылки. С синей зоной
+  «Наша инфраструктура» это не связано, цвет подписи не трогай.

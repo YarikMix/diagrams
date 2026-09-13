@@ -28,8 +28,9 @@ bun ставится с https://bun.sh. Без настоящего Node в PATH
 ```bash
 bun install
 bun run validate   # схема и иконки, без браузера
+bun run check      # цветовая конвенция и легенды, без браузера
 bun run render     # dist/<name>.html и dist/<name>.png
-bun run build      # validate + render + dist/index.html
+bun run build      # validate + check + render + dist/index.html
 bun run icons      # обновить icons.txt из каталога иконок Eraser
 bun run test
 ```
@@ -38,7 +39,8 @@ bun run test
 
 Диаграммы правит агент Claude Code по скиллу
 `.claude/skills/eraser-diagrams/SKILL.md`: изменить JSON, `bun run validate`,
-`bun run render`, посмотреть PNG, поправить координаты. Координаты
+`bun run check`, `bun run render`, посмотреть PNG, поправить координаты.
+Цвета групп и стрелок задаёт конвенция, её проверяет `bun run check`. Координаты
 абсолютные, автораскладки узлов нет. Имена иконок в `icons.txt`.
 Рендер автономен: в `dist/*.html` нет `file://` и внешних `src`,
 `<link>`, `@import`, `url()`; ссылки `https://…` допустимы только внутри
