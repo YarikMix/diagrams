@@ -122,10 +122,21 @@ function buildBranch(branch, tmpRoot) {
     const options = { cwd: dir, timeout: BRANCH_STEP_TIMEOUT_MS };
     if (!run("bun", ["install", "--frozen-lockfile"], options)) return { status: "failed", failedStep: "bun install" };
     // Кэш иконок основной сборки: ветке не нужно заново качать те же SVG.
-    if (existsSync(ICON_CACHE_DIR)) cpSync(ICON_CACHE_DIR, join(dir, ICON_CACHE_DIR), { recursive: true });
+    if (existsSync(ICON_CACHE_DIR)) {
+      try {
+        cpSync(ICON_CACHE_DIR, join(dir, ICON_CACHE_DIR), { recursive: true });
+      } catch (error) {
+        console.error(`site: icon cache not copied for ${branch.name}: ${error.message}`);
+      }
+    }
     if (!run("bun", ["run", "build"], options)) return { status: "failed", failedStep: "bun run build" };
     if (!existsSync(join(dir, "dist", "index.html"))) return { status: "failed", failedStep: "dist" };
-    cpSync(join(dir, "dist"), join("dist", "branches", branch.slug), { recursive: true });
+    try {
+      cpSync(join(dir, "dist"), join("dist", "branches", branch.slug), { recursive: true });
+    } catch (error) {
+      console.error(`site: copying ${branch.name} failed: ${error.message}`);
+      return { status: "failed", failedStep: "copy" };
+    }
     return { status: "ok" };
   } finally {
     run("git", ["worktree", "remove", "--force", dir]);

@@ -161,7 +161,8 @@ jobs:
       Тогда `dist/` ветки копируется в `dist/branches/<slug>/` основного
       каталога.
    4. Иначе статус `failed` и имя шага: `worktree`, `bun install`,
-      `bun run build` или `dist`.
+      `bun run build`, `dist` или `copy`. Ошибка копирования кэша иконок
+      не роняет ветку, скрипт пишет предупреждение и продолжает.
    5. `git worktree remove --force <tmp>/<slug>` в любом случае.
 5. `dist/branches/index.html` по §5.
 6. `dist/index.html` перезаписывается `renderIndex(diagramNames(), { previewsHref: "branches/" })`.
