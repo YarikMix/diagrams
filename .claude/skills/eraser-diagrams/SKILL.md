@@ -50,11 +50,14 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
 
 1. Измени JSON.
 2. `npm run validate` — схема и иконки, без браузера.
-3. `npm run render` — `dist/<name>.html` и `dist/<name>.png`.
+3. `npm run render` — `dist/<name>.html` и `dist/<name>.png`; нужен Chrome или
+   другой Chromium; если автопоиск не находит его, задай переменную
+   `CHROMIUM_PATH`.
 4. Открой `dist/<name>.png` через Read и проверь глазами: узлы не
    накладываются, все узлы внутри своих групп, заголовки групп не обрезаны,
    подписи читаемы.
 5. Поправь координаты (кратно 20), повтори с шага 2.
+6. Перед коммитом: `npm test` и `npm run build` (то же, что делает CI).
 
 ## Соглашения
 
@@ -68,9 +71,9 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
 
 ## Известные ловушки
 
-- Плейсхолдеры в угловых скобках (`<id>`) в `label`/`text` вырезает
-  HTML-санитайзер CLI, `validate` падает с `W_CONTENT_SANITIZED`.
-  Пиши `{id}`.
+- Плейсхолдеры в угловых скобках (`<id>`) в значениях `label`/`text` диаграммы
+  (не в этой инструкции, где `<Tag>` и `<имя>` — просто обозначения) вырезает
+  HTML-санитайзер CLI, `validate` падает с `W_CONTENT_SANITIZED`. Пиши `{id}`.
 - Текст `https://...` в `label` CLI превращает в ссылку `<a href>` в HTML.
   Это нормально, внешних ресурсов (шрифтов, иконок) HTML не грузит.
 - Ширина переноса подписи на стрелке зависит от горизонтального хода
