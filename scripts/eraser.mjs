@@ -33,6 +33,16 @@ export function rendererCommand(command, files, extra) {
   return { cmd: "node", args: [cliEntry(), ...buildArgs(command, files, extra)] };
 }
 
+export const NODE_PROBE_ARGS = ["-e", "process.stdout.write(process.versions.bun ? 'bun' : 'node')"];
+
+// Classifies the result of spawnSync("node", NODE_PROBE_ARGS, { encoding: "utf8" }).
+// "bun" means `node` on PATH is bun's shim (bun run adds one when Node is missing).
+export function nodeProbeVerdict(result) {
+  if (result.error?.code === "ENOENT") return "missing";
+  if (result.error || result.status !== 0) return "failed";
+  return result.stdout === "node" ? "ok" : "bun";
+}
+
 function main(argv) {
   const [command, ...extra] = argv;
   if (!command) {
@@ -43,6 +53,17 @@ function main(argv) {
   if (files.length === 0) {
     console.error(`no *.json files in ${DIAGRAMS_DIR}/`);
     return 2;
+  }
+  const probe = spawnSync("node", NODE_PROBE_ARGS, { encoding: "utf8" });
+  const verdict = nodeProbeVerdict(probe);
+  if (verdict === "missing" || verdict === "bun") {
+    const reason = verdict === "missing" ? "node not found on PATH" : "node on PATH is bun's shim, not Node";
+    console.error(`${reason}: the eraser-diagrams renderer needs Node >= 22.12`);
+    return 2;
+  }
+  if (verdict === "failed") {
+    console.error(probe.error ? probe.error.message : `node probe exited with status ${probe.status}`);
+    return 1;
   }
   const { cmd, args } = rendererCommand(command, files, extra);
   const result = spawnSync(cmd, args, { stdio: "inherit" });

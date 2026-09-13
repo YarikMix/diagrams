@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { listDiagrams, buildArgs, cliEntry, rendererCommand } from "./eraser.mjs";
+import { listDiagrams, buildArgs, cliEntry, rendererCommand, nodeProbeVerdict } from "./eraser.mjs";
 
 test("listDiagrams returns only *.json, sorted, with dir prefix", (t) => {
   const dir = mkdtempSync(join(tmpdir(), "eraser-"));
@@ -30,4 +30,21 @@ test("rendererCommand runs the CLI under node, not under the current runtime", (
   assert.equal(cmd, "node");
   assert.equal(args[0], cliEntry());
   assert.deepEqual(args.slice(1), ["render", "diagrams/a.json", "-f", "html"]);
+});
+
+test("nodeProbeVerdict: real node answers node", () => {
+  assert.equal(nodeProbeVerdict({ status: 0, stdout: "node" }), "ok");
+});
+
+test("nodeProbeVerdict: bun's node shim answers bun", () => {
+  assert.equal(nodeProbeVerdict({ status: 0, stdout: "bun" }), "bun");
+});
+
+test("nodeProbeVerdict: no node on PATH is missing", () => {
+  assert.equal(nodeProbeVerdict({ error: Object.assign(new Error("spawn node ENOENT"), { code: "ENOENT" }) }), "missing");
+});
+
+test("nodeProbeVerdict: other spawn errors and non-zero exits are failed", () => {
+  assert.equal(nodeProbeVerdict({ error: Object.assign(new Error("EACCES"), { code: "EACCES" }) }), "failed");
+  assert.equal(nodeProbeVerdict({ status: 1, stdout: "" }), "failed");
 });
