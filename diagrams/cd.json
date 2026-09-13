@@ -23,7 +23,7 @@
     { "tag": "Activity", "id": "fe-deploy-s3", "x": 360, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Deploy to s3" }] },
     { "tag": "Activity", "id": "fe-canary", "x": 520, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Register as canary" }] },
     { "tag": "Activity", "id": "fe-health-canary", "x": 680, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Health check (canary)" }] },
-    { "tag": "Activity", "id": "fe-observe", "x": 840, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Наблюдение" }] },
+    { "tag": "Activity", "id": "fe-observe", "x": 840, "y": 420, "width": 140, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Наблюдение" }] },
     { "tag": "Activity", "id": "fe-promote", "x": 1000, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Promote to stable" }] },
     { "tag": "Activity", "id": "fe-health", "x": 1160, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Health check" }] },
     { "tag": "Activity", "id": "fe-tg", "x": 1320, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Send to tg" }] },
