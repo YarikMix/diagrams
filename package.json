@@ -10,6 +10,7 @@
     "render": "bun scripts/eraser.mjs render -f html && bun scripts/eraser.mjs render -f png",
     "index": "bun scripts/build-index.mjs",
     "build": "bun run validate && bun run check && bun run render && bun run index",
+    "site": "bun scripts/build-site.mjs",
     "icons": "bun scripts/fetch-icons.mjs"
   },
   "devDependencies": {
