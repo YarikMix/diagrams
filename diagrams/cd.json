@@ -1,0 +1,103 @@
+{
+  "entities": [
+    { "tag": "Group", "id": "vps5", "x": 0, "y": 0, "width": 1480, "height": 800, "isContainer": true, "title": { "text": "VPS 5 · k8s · ARC", "icon": "kubernetes" } },
+
+    { "tag": "Group", "id": "backend-cd", "x": 20, "y": 40, "width": 800, "height": 120, "containerId": "vps5", "isContainer": true, "title": { "text": "Backend CD" } },
+    { "tag": "Activity", "id": "be-pull", "x": 40, "y": 80, "width": 120, "height": 60, "containerId": "backend-cd", "texts": [{ "text": "Pull image from registry" }] },
+    { "tag": "Activity", "id": "be-migrate", "x": 200, "y": 80, "width": 120, "height": 60, "containerId": "backend-cd", "texts": [{ "text": "Run migrations" }] },
+    { "tag": "Activity", "id": "be-deploy", "x": 360, "y": 80, "width": 120, "height": 60, "containerId": "backend-cd", "texts": [{ "text": "Deploy (compose up)" }] },
+    { "tag": "Activity", "id": "be-health", "x": 520, "y": 80, "width": 120, "height": 60, "containerId": "backend-cd", "texts": [{ "text": "Health check" }] },
+    { "tag": "Activity", "id": "be-tg", "x": 680, "y": 80, "width": 120, "height": 60, "containerId": "backend-cd", "texts": [{ "text": "Send to tg" }] },
+
+    { "tag": "Group", "id": "bff-cd", "x": 20, "y": 180, "width": 860, "height": 180, "containerId": "vps5", "isContainer": true, "title": { "text": "BFF CD" } },
+    { "tag": "Activity", "id": "bff-ansible", "x": 40, "y": 240, "width": 120, "height": 60, "containerId": "bff-cd", "texts": [{ "text": "Run ansible playbook" }] },
+    { "tag": "Group", "id": "ansible-playbook", "x": 200, "y": 200, "width": 320, "height": 120, "containerId": "bff-cd", "isContainer": true, "title": { "text": "Ansible playbook" } },
+    { "tag": "Activity", "id": "bff-pull", "x": 220, "y": 240, "width": 120, "height": 60, "containerId": "ansible-playbook", "texts": [{ "text": "Pull image" }] },
+    { "tag": "Activity", "id": "bff-compose", "x": 380, "y": 240, "width": 120, "height": 60, "containerId": "ansible-playbook", "texts": [{ "text": "Compose up" }] },
+    { "tag": "Activity", "id": "bff-health", "x": 560, "y": 240, "width": 120, "height": 60, "containerId": "bff-cd", "texts": [{ "text": "Health check" }] },
+    { "tag": "Activity", "id": "bff-tg", "x": 720, "y": 240, "width": 120, "height": 60, "containerId": "bff-cd", "texts": [{ "text": "Send to tg" }] },
+
+    { "tag": "Group", "id": "frontend-cd", "x": 20, "y": 380, "width": 1440, "height": 120, "containerId": "vps5", "isContainer": true, "title": { "text": "Frontend CD (канареечный релиз)" } },
+    { "tag": "Activity", "id": "fe-build", "x": 40, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Build" }] },
+    { "tag": "Activity", "id": "fe-stats", "x": 200, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Send bundle stats" }] },
+    { "tag": "Activity", "id": "fe-deploy-s3", "x": 360, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Deploy to s3" }] },
+    { "tag": "Activity", "id": "fe-canary", "x": 520, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Register as canary" }] },
+    { "tag": "Activity", "id": "fe-health-canary", "x": 680, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Health check (canary)" }] },
+    { "tag": "Activity", "id": "fe-observe", "x": 840, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Наблюдение" }] },
+    { "tag": "Activity", "id": "fe-promote", "x": 1000, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Promote to stable" }] },
+    { "tag": "Activity", "id": "fe-health", "x": 1160, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Health check" }] },
+    { "tag": "Activity", "id": "fe-tg", "x": 1320, "y": 420, "width": 120, "height": 60, "containerId": "frontend-cd", "texts": [{ "text": "Send to tg" }] },
+
+    { "tag": "Group", "id": "frontend-rollback", "x": 20, "y": 520, "width": 480, "height": 120, "containerId": "vps5", "isContainer": true, "title": { "text": "Frontend Rollback" } },
+    { "tag": "Activity", "id": "rb-switch", "x": 40, "y": 560, "width": 120, "height": 60, "containerId": "frontend-rollback", "texts": [{ "text": "Switch release pointer" }] },
+    { "tag": "Activity", "id": "rb-health", "x": 200, "y": 560, "width": 120, "height": 60, "containerId": "frontend-rollback", "texts": [{ "text": "Health check" }] },
+    { "tag": "Activity", "id": "rb-tg", "x": 360, "y": 560, "width": 120, "height": 60, "containerId": "frontend-rollback", "texts": [{ "text": "Send to tg" }] },
+
+    { "tag": "Group", "id": "e2e", "x": 20, "y": 660, "width": 480, "height": 120, "containerId": "vps5", "isContainer": true, "title": { "text": "E2E" } },
+    { "tag": "Activity", "id": "e2e-run", "x": 40, "y": 700, "width": 120, "height": 60, "containerId": "e2e", "texts": [{ "text": "Run e2e" }] },
+    { "tag": "Activity", "id": "e2e-upload", "x": 200, "y": 700, "width": 120, "height": 60, "containerId": "e2e", "texts": [{ "text": "Upload to Allure TestOps" }] },
+    { "tag": "Activity", "id": "e2e-tg", "x": 360, "y": 700, "width": 120, "height": 60, "containerId": "e2e", "texts": [{ "text": "Send to tg" }] },
+    { "tag": "Icon", "id": "moon", "x": 560, "y": 680, "containerId": "vps5", "icon": "chrome", "texts": [{ "text": "moon" }] },
+    { "tag": "Icon", "id": "reportportal", "x": 700, "y": 680, "containerId": "vps5", "icon": "monitor", "texts": [{ "text": "ReportPortal" }] },
+
+    { "tag": "Group", "id": "vps7", "x": 0, "y": 860, "width": 680, "height": 320, "isContainer": true, "title": { "text": "VPS 7 · Coolify", "icon": "docker" } },
+    { "tag": "Group", "id": "pr-open", "x": 20, "y": 900, "width": 640, "height": 120, "containerId": "vps7", "isContainer": true, "title": { "text": "PR фронта открыт" } },
+    { "tag": "Activity", "id": "pr-clone", "x": 40, "y": 940, "width": 120, "height": 60, "containerId": "pr-open", "texts": [{ "text": "Clone branch" }] },
+    { "tag": "Activity", "id": "pr-build", "x": 200, "y": 940, "width": 120, "height": 60, "containerId": "pr-open", "texts": [{ "text": "Build image" }] },
+    { "tag": "Activity", "id": "pr-deploy", "x": 360, "y": 940, "width": 120, "height": 60, "containerId": "pr-open", "texts": [{ "text": "Deploy preview" }] },
+    { "tag": "Activity", "id": "pr-domain", "x": 520, "y": 940, "width": 120, "height": 60, "containerId": "pr-open", "texts": [{ "text": "Assign subdomain + TLS" }] },
+    { "tag": "Group", "id": "pr-closed", "x": 20, "y": 1040, "width": 320, "height": 120, "containerId": "vps7", "isContainer": true, "title": { "text": "PR фронта закрыт" } },
+    { "tag": "Activity", "id": "pr-destroy", "x": 40, "y": 1080, "width": 120, "height": 60, "containerId": "pr-closed", "texts": [{ "text": "Destroy preview" }] },
+    { "tag": "Activity", "id": "pr-release", "x": 200, "y": 1080, "width": 120, "height": 60, "containerId": "pr-closed", "texts": [{ "text": "Release subdomain / cert" }] },
+
+    { "tag": "Icon", "id": "docker-registry", "x": 1600, "y": 80, "icon": "docker", "texts": [{ "text": "Docker Registry" }] },
+    { "tag": "Icon", "id": "relative-ci", "x": 1600, "y": 300, "icon": "monitor", "texts": [{ "text": "Relative CI" }] },
+    { "tag": "Icon", "id": "s3", "x": 1600, "y": 420, "icon": "database", "texts": [{ "text": "S3" }] },
+    { "tag": "Icon", "id": "unleash", "x": 1600, "y": 560, "icon": "package", "texts": [{ "text": "unleash" }] },
+    { "tag": "Icon", "id": "allure", "x": 1600, "y": 700, "icon": "monitor", "texts": [{ "text": "Allure TestOps" }] },
+    { "tag": "Icon", "id": "telegram", "x": 1600, "y": 920, "icon": "telegram", "texts": [{ "text": "Telegram" }] }
+  ],
+  "connections": [
+    { "tag": "Relationship", "from": "be-pull", "to": "be-migrate" },
+    { "tag": "Relationship", "from": "be-migrate", "to": "be-deploy" },
+    { "tag": "Relationship", "from": "be-deploy", "to": "be-health" },
+    { "tag": "Relationship", "from": "be-health", "to": "be-tg" },
+
+    { "tag": "Relationship", "from": "bff-ansible", "to": "bff-pull" },
+    { "tag": "Relationship", "from": "bff-pull", "to": "bff-compose" },
+    { "tag": "Relationship", "from": "bff-compose", "to": "bff-health" },
+    { "tag": "Relationship", "from": "bff-health", "to": "bff-tg" },
+
+    { "tag": "Relationship", "from": "fe-build", "to": "fe-stats" },
+    { "tag": "Relationship", "from": "fe-stats", "to": "fe-deploy-s3" },
+    { "tag": "Relationship", "from": "fe-deploy-s3", "to": "fe-canary" },
+    { "tag": "Relationship", "from": "fe-canary", "to": "fe-health-canary" },
+    { "tag": "Relationship", "from": "fe-health-canary", "to": "fe-observe" },
+    { "tag": "Relationship", "from": "fe-observe", "to": "fe-promote" },
+    { "tag": "Relationship", "from": "fe-promote", "to": "fe-health" },
+    { "tag": "Relationship", "from": "fe-health", "to": "fe-tg" },
+
+    { "tag": "Relationship", "from": "rb-switch", "to": "rb-health" },
+    { "tag": "Relationship", "from": "rb-health", "to": "rb-tg" },
+
+    { "tag": "Relationship", "from": "e2e-run", "to": "e2e-upload" },
+    { "tag": "Relationship", "from": "e2e-upload", "to": "e2e-tg" },
+    { "tag": "Relationship", "from": "e2e-run", "to": "moon", "label": "remote browsers" },
+    { "tag": "Relationship", "from": "e2e-run", "to": "reportportal", "label": "live results" },
+
+    { "tag": "Relationship", "from": "pr-clone", "to": "pr-build" },
+    { "tag": "Relationship", "from": "pr-build", "to": "pr-deploy" },
+    { "tag": "Relationship", "from": "pr-deploy", "to": "pr-domain" },
+    { "tag": "Relationship", "from": "pr-destroy", "to": "pr-release" },
+
+    { "tag": "Relationship", "from": "be-pull", "to": "docker-registry" },
+    { "tag": "Relationship", "from": "bff-pull", "to": "docker-registry" },
+    { "tag": "Relationship", "from": "fe-stats", "to": "relative-ci" },
+    { "tag": "Relationship", "from": "fe-deploy-s3", "to": "s3", "label": "releases/{id}/" },
+    { "tag": "Relationship", "from": "fe-promote", "to": "s3", "label": "current.json" },
+    { "tag": "Relationship", "from": "rb-switch", "to": "s3", "label": "current.json" },
+    { "tag": "Relationship", "from": "fe-canary", "to": "unleash" },
+    { "tag": "Relationship", "from": "e2e-upload", "to": "allure" },
+    { "tag": "Relationship", "from": "vps5", "to": "telegram", "label": "Send to tg" }
+  ]
+}
