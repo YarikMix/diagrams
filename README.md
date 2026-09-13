@@ -17,23 +17,25 @@
 
 ## Локально
 
-Нужны Node ≥ 22.12 и Google Chrome (или другой Chromium; путь в
-переменной `CHROMIUM_PATH`).
+Нужны bun ≥ 1.3, Node ≥ 22.12 и Google Chrome (или другой Chromium; путь в
+переменной `CHROMIUM_PATH`). bun ставит зависимости и запускает скрипты и
+тесты. Рендерер eraser-diagrams запускается под Node: под bun он зависает
+на запуске Chrome.
 
 ```bash
-npm ci
-npm run validate   # схема и иконки, без браузера
-npm run render     # dist/<name>.html и dist/<name>.png
-npm run build      # validate + render + dist/index.html
-npm run icons      # обновить icons.txt из каталога иконок Eraser
-npm test
+bun install
+bun run validate   # схема и иконки, без браузера
+bun run render     # dist/<name>.html и dist/<name>.png
+bun run build      # validate + render + dist/index.html
+bun run icons      # обновить icons.txt из каталога иконок Eraser
+bun run test
 ```
 
 ## Как править
 
 Диаграммы правит агент Claude Code по скиллу
-`.claude/skills/eraser-diagrams/SKILL.md`: изменить JSON, `npm run validate`,
-`npm run render`, посмотреть PNG, поправить координаты. Координаты
+`.claude/skills/eraser-diagrams/SKILL.md`: изменить JSON, `bun run validate`,
+`bun run render`, посмотреть PNG, поправить координаты. Координаты
 абсолютные, автораскладки узлов нет. Имена иконок в `icons.txt`.
 Рендер автономен: в `dist/*.html` нет `file://` и внешних `src`,
 `<link>`, `@import`, `url()`; ссылки `https://…` допустимы только внутри
@@ -44,4 +46,5 @@ CI на pull request валидирует и рендерит схемы, арт
 вручную: Settings → Pages → Build and deployment → Source → GitHub
 Actions, иначе job `deploy` падает с «Get Pages site failed».
 
-Дизайн: `docs/superpowers/specs/2026-09-12-eraser-diagrams-pipeline-design.md`.
+Дизайн: `docs/superpowers/specs/2026-09-12-eraser-diagrams-pipeline-design.md`,
+`docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md`.

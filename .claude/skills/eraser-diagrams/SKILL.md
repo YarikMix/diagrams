@@ -39,25 +39,26 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
   onesignal, uptime-kuma, selectel) — бери общую (`server`, `database`,
   `monitor`, `bell`, `package`, `rocket`, `cloud`, `globe`) и пиши название
   в подписи.
-- Обновить снимок каталога: `npm run icons`.
+- Обновить снимок каталога: `bun run icons`.
 
 ## Поля тега
 
-`npx eraser-diagrams schema <Tag>` печатает JSON Schema, например
-`npx eraser-diagrams schema Activity`.
+`bunx eraser-diagrams schema <Tag>` печатает JSON Schema, например
+`bunx eraser-diagrams schema Activity`.
 
 ## Цикл правки
 
 1. Измени JSON.
-2. `npm run validate` — схема и иконки, без браузера.
-3. `npm run render` — `dist/<name>.html` и `dist/<name>.png`; нужен Chrome или
-   другой Chromium; если автопоиск не находит его, задай переменную
-   `CHROMIUM_PATH`.
+2. `bun run validate` — схема и иконки, без браузера.
+3. `bun run render` — `dist/<name>.html` и `dist/<name>.png`; рендерер
+   запускается под Node ≥ 22.12 из PATH (под bun Chrome не стартует); нужен
+   Chrome или другой Chromium; если автопоиск не находит его, задай
+   переменную `CHROMIUM_PATH`.
 4. Открой `dist/<name>.png` через Read и проверь глазами: узлы не
    накладываются, все узлы внутри своих групп, заголовки групп не обрезаны,
    подписи читаемы.
 5. Поправь координаты (кратно 20), повтори с шага 2.
-6. Перед коммитом: `npm test` и `npm run build` (то же, что делает CI).
+6. Перед коммитом: `bun run test` и `bun run build` (то же, что делает CI).
 
 ## Соглашения
 
