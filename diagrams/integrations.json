@@ -1,0 +1,44 @@
+{
+  "entities": [
+    { "tag": "Group", "id": "ours", "x": 0, "y": 0, "width": 320, "height": 340, "isContainer": true, "title": { "text": "Наша инфраструктура (Selectel)", "icon": "cloud" } },
+    { "tag": "Icon", "id": "caddy-vps1", "x": 40, "y": 60, "containerId": "ours", "icon": "server", "texts": [{ "text": "Caddy (VPS 1)" }] },
+    { "tag": "Icon", "id": "go-vps2", "x": 180, "y": 60, "containerId": "ours", "icon": "go", "texts": [{ "text": "Go API (VPS 2)" }] },
+    { "tag": "Icon", "id": "caddy-vps3", "x": 40, "y": 220, "containerId": "ours", "icon": "server", "texts": [{ "text": "Caddy (VPS 3)" }] },
+    { "tag": "Icon", "id": "alertmanager", "x": 180, "y": 220, "containerId": "ours", "icon": "bell", "texts": [{ "text": "Alert Manager (VPS 3)" }] },
+
+    { "tag": "Icon", "id": "client", "x": 560, "y": 120, "icon": "chrome", "texts": [{ "text": "Client (браузер)" }] },
+
+    { "tag": "Group", "id": "yoomoney", "x": 800, "y": 0, "width": 280, "height": 160, "isContainer": true, "title": { "text": "ЮMoney", "icon": "globe" } },
+    { "tag": "Icon", "id": "yoomoney-api", "x": 820, "y": 40, "containerId": "yoomoney", "icon": "globe", "texts": [{ "text": "ЮMoney API" }] },
+    { "tag": "Icon", "id": "yoomoney-page", "x": 960, "y": 40, "containerId": "yoomoney", "icon": "monitor", "texts": [{ "text": "Страница оплаты" }] },
+
+    { "tag": "Group", "id": "vk-cloud", "x": 800, "y": 200, "width": 420, "height": 200, "isContainer": true, "title": { "text": "VK Cloud", "icon": "cloud" } },
+    { "tag": "Icon", "id": "vk-id", "x": 820, "y": 240, "containerId": "vk-cloud", "icon": "user", "texts": [{ "text": "VK ID" }] },
+    { "tag": "Icon", "id": "vk-voice", "x": 960, "y": 240, "containerId": "vk-cloud", "icon": "cloud", "texts": [{ "text": "VK Cloud Voice" }] },
+    { "tag": "Icon", "id": "app-tracer", "x": 1100, "y": 240, "containerId": "vk-cloud", "icon": "monitor", "texts": [{ "text": "App Tracer" }] },
+
+    { "tag": "Icon", "id": "storybook-pages", "x": 160, "y": 440, "icon": "storybook", "texts": [{ "text": "Storybook (Pages)" }] },
+    { "tag": "Icon", "id": "telegram", "x": 300, "y": 440, "icon": "telegram", "texts": [{ "text": "Telegram" }] },
+    { "tag": "Icon", "id": "allure", "x": 580, "y": 440, "icon": "monitor", "texts": [{ "text": "Allure TestOps" }] },
+    { "tag": "Icon", "id": "one-signal", "x": 860, "y": 440, "icon": "bell", "texts": [{ "text": "One Signal" }] },
+    { "tag": "Icon", "id": "relative-ci", "x": 1000, "y": 440, "icon": "monitor", "texts": [{ "text": "Relative CI" }] },
+    { "tag": "Icon", "id": "cloudflare", "x": 1140, "y": 440, "icon": "cloudflare", "texts": [{ "text": "Cloudflare Turnstile" }] },
+    { "tag": "Icon", "id": "posthog", "x": 1280, "y": 440, "icon": "posthog", "texts": [{ "text": "PostHog" }] }
+  ],
+  "connections": [
+    { "tag": "Relationship", "from": "client", "to": "caddy-vps1", "label": "https://site.ru, /api" },
+    { "tag": "Relationship", "from": "client", "to": "caddy-vps3", "label": "grafana.site.ru, faro-метрики" },
+    { "tag": "Relationship", "from": "client", "to": "yoomoney-page", "label": "оплата" },
+    { "tag": "Relationship", "from": "yoomoney-page", "to": "yoomoney-api" },
+    { "tag": "Relationship", "from": "yoomoney-api", "to": "caddy-vps1", "label": "/payment-callback" },
+    { "tag": "Relationship", "from": "client", "to": "app-tracer" },
+    { "tag": "Relationship", "from": "app-tracer", "to": "telegram", "label": "frontend alerts" },
+    { "tag": "Relationship", "from": "alertmanager", "to": "telegram", "label": "backend alerts" },
+    { "tag": "Relationship", "from": "client", "to": "storybook-pages", "label": "storybook.site.ru" },
+    { "tag": "Relationship", "from": "client", "to": "posthog", "label": "posthog.site.ru" },
+    { "tag": "Relationship", "from": "go-vps2", "to": "posthog" },
+    { "tag": "Relationship", "from": "client", "to": "one-signal", "label": "sdk" },
+    { "tag": "Relationship", "from": "go-vps2", "to": "one-signal" },
+    { "tag": "Relationship", "from": "client", "to": "relative-ci", "label": "app.relative-ci.com" }
+  ]
+}

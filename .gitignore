@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.eraser/
+.idea/
+.superpowers/
+.claude/worktrees/

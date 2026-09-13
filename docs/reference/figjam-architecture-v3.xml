@@ -1,0 +1,253 @@
+<!--
+  Экспорт доски FigJam «ТП 2 sem», узел 1082:3880 «Архитектура v3».
+  Снято 2026-09-12 через Figma MCP (get_figjam).
+  Координаты x/y у вложенных элементов ОТНОСИТЕЛЬНЫ родительской section.
+  Элементы с hidden="true" — мусор, игнорировать.
+  Это исходник для миграции в diagrams/*.json, см. docs/superpowers/specs/2026-09-12-eraser-diagrams-pipeline-design.md
+-->
+<section id="1082:3880" name="Архитектура v3" x="-26560" y="-7664" width="12160" height="9440">
+  <section id="1123:8056" name="Allure" x="5730" y="640" width="496" height="304">
+    <shape-with-text id="1084:4819" x="136" y="88" width="224" height="128" name="SQUARE">Allure Test Ops Cloud</shape-with-text>
+  </section>
+  <section id="1082:3881" name="ЮMoney" x="6592" y="7601" width="544" height="351">
+    <shape-with-text id="1082:3882" x="64" y="111" width="176" height="128" name="SQUARE">ЮMoney API</shape-with-text>
+    <shape-with-text id="1082:3883" x="288" y="103" width="208" height="144" name="SQUARE">ЮMoney страница оплаты</shape-with-text>
+    <connector id="1082:3884" connectorStart="1082:3883" connectorEnd="1082:3882" connectorEndCap="ARROW_LINES"></connector>
+  </section>
+  <section id="1082:3885" name="Cloudflare" x="2352" y="7338" width="446" height="427">
+    <shape-with-text id="1082:3886" x="135" y="150" width="176" height="128" name="SQUARE">Cloudflare Turnstile</shape-with-text>
+  </section>
+  <section id="1082:3888" name="NPM Registry" x="176" y="4864" width="686" height="624">
+    <shape-with-text id="1082:3889" x="288" y="352" width="228" height="128" name="SQUARE">@my/ui-kit</shape-with-text>
+    <shape-with-text id="1082:3890" x="288" y="80" width="228" height="128" name="SQUARE">@my/react</shape-with-text>
+  </section>
+  <section id="1082:3893" name="Docker Registry" x="3056" y="7055" width="574" height="286">
+    <shape-with-text id="1082:3894" x="306" y="68" width="176" height="128" name="SQUARE">backend image</shape-with-text>
+    <shape-with-text id="1082:3895" x="79" y="68" width="176" height="128" name="SQUARE">bff image</shape-with-text>
+  </section>
+  <text id="1082:3896" name="Client" x="7211" y="7512" />
+  <rounded-rectangle id="1082:3897" name="icons8-browser-50 1 (Client browser)" x="7177" y="7321" width="160" height="160" />
+  <section id="1082:3898" name="Selectel" x="5034" y="1408" width="5862" height="5425">
+    <section id="1082:3899" name="Domain" x="122" y="5120" width="280" height="224">
+      <shape-with-text id="1082:3900" x="52" y="48" width="176" height="128" name="SQUARE">site.ru</shape-with-text>
+    </section>
+    <shape-with-text id="1082:3901" x="918" y="3504" width="176" height="176" name="ENG_DATABASE">S3</shape-with-text>
+    <shape-with-text id="1082:3902" x="1702" y="3504" width="176" height="176" name="DIAMOND">CDN</shape-with-text>
+    <connector id="1082:3903" connectorStart="1082:3901" connectorStartCap="ARROW_LINES" connectorEnd="1082:3902">static</connector>
+    <section id="1082:3904" name="VPS №1" x="790" y="4672" width="912" height="545">
+      <section id="1082:3905" name="Docker Compose" x="64" y="64" width="790" height="453">
+        <shape-with-text id="1082:3906" x="528" y="224" width="176" height="149" name="SQUARE">Caddy</shape-with-text>
+        <shape-with-text id="1090:5468" x="64" y="48" width="176" height="128" name="SQUARE">BFF (Hono)</shape-with-text>
+        <connector id="1095:5692" connectorStart="1082:3906" connectorEnd="1090:5468" connectorEndCap="ARROW_LINES"></connector>
+        <shape-with-text id="1097:6176" x="48" y="234" width="208" height="128" name="SQUARE">Node Exporter</shape-with-text>
+        <connector id="1097:6341" connectorStart="1082:3906" connectorEnd="1097:6176" connectorEndCap="ARROW_LINES"></connector>
+      </section>
+    </section>
+    <connector id="1096:5897" connectorStart="1090:5468" connectorEnd="1082:3901" connectorEndCap="ARROW_LINES">https://s3.site.ru/releases/$frontend_release/index.html</connector>
+    <connector id="1082:3924" connectorStart="1082:3906" connectorEnd="1082:3902" connectorEndCap="ARROW_LINES">proxy pass to https://static.site.ru/releases/$frontend_release/index.html</connector>
+    <section id="1084:4633" name="VPS №5" x="122" y="80" width="3100" height="2432">
+      <section id="1084:4634" name="k8s" x="80" y="96" width="2940" height="2240">
+        <section id="1104:6459" name="ARC" x="44" y="384" width="2720" height="1808">
+          <section id="1082:4018" name="Frontend CD Pipeline" x="49" y="1488" width="2591" height="272">
+            <shape-with-text id="1082:4031" x="47" y="48" name="SQUARE">Build</shape-with-text>
+            <shape-with-text id="1082:4033" x="351" y="48" name="SQUARE">Send bundle stats</shape-with-text>
+            <shape-with-text id="1082:4021" x="623" y="48" name="SQUARE">Deploy to s3</shape-with-text>
+            <shape-with-text id="1134:5237" x="921" y="48" name="SQUARE">Register as canary</shape-with-text>
+            <shape-with-text id="1135:5367" x="1215" y="48" name="SQUARE">Health check (canary)</shape-with-text>
+            <shape-with-text id="1135:5418" x="1508" y="48" name="SQUARE">наблюдение</shape-with-text>
+            <shape-with-text id="1135:5479" x="1800" y="48" name="SQUARE">Promote to stable</shape-with-text>
+            <shape-with-text id="1135:5610" x="2093" y="48" name="SQUARE">Health check</shape-with-text>
+            <shape-with-text id="1082:4026" x="2385" y="48" name="SQUARE">Send to tg</shape-with-text>
+            <!-- цепочка: Build → Send bundle stats → Deploy to s3 → Register as canary → Health check (canary) → наблюдение → Promote to stable → Health check → Send to tg -->
+          </section>
+          <section id="1109:7172" name="BFF CD Pipeline" x="49" y="768" width="2079" height="272">
+            <shape-with-text id="1126:4820" x="31" y="76" name="SQUARE">Run ansible playbook</shape-with-text>
+            <section id="1132:5070" name="Ansible playbook" x="271" y="36" width="1200" height="208">
+              <shape-with-text id="1133:5097" x="64" y="40" name="SQUARE">Pull image</shape-with-text>
+              <shape-with-text id="1133:5115" x="960" y="40" name="SQUARE">Compose up</shape-with-text>
+            </section>
+            <shape-with-text id="1126:4824" x="1567" y="76" name="SQUARE">Health check</shape-with-text>
+            <shape-with-text id="1109:7176" x="1838" y="76" name="SQUARE">Send to tg</shape-with-text>
+            <!-- цепочка: Run ansible playbook → [Pull image → Compose up] → Health check → Send to tg -->
+          </section>
+          <section id="1082:3990" name="E2E pipeline" x="49" y="144" width="1298" height="240">
+            <shape-with-text id="1082:3991" x="44" y="56" name="SQUARE">Run e2e</shape-with-text>
+            <shape-with-text id="1082:3992" x="545" y="56" name="SQUARE">Upload to Allure TestOps</shape-with-text>
+            <shape-with-text id="1082:3999" x="1023" y="56" name="SQUARE">Send to tg</shape-with-text>
+            <!-- цепочка: Run e2e → Upload to Allure TestOps → Send to tg -->
+          </section>
+          <section id="1082:4036" name="Frontend Rollback Pipeline" x="49" y="1118" width="927" height="272">
+            <shape-with-text id="1128:4824" x="47" y="80" name="SQUARE">Switch release pointer</shape-with-text>
+            <shape-with-text id="1128:4846" x="367" y="80" name="SQUARE">Health check</shape-with-text>
+            <shape-with-text id="1082:4039" x="703" y="80" name="SQUARE">Send to tg</shape-with-text>
+            <!-- цепочка: Switch release pointer → Health check → Send to tg -->
+          </section>
+          <section id="1105:6683" name="Backend CD Pipeline" x="49" y="408" width="1298" height="320">
+            <shape-with-text id="1105:6685" x="44" y="84" name="SQUARE">Pull image from registry</shape-with-text>
+            <shape-with-text id="1126:4792" x="302" y="84" name="SQUARE">Run migrations</shape-with-text>
+            <shape-with-text id="1126:4796" x="553" y="84" name="SQUARE">Deploy (compose up)</shape-with-text>
+            <shape-with-text id="1126:4800" x="818" y="84" name="SQUARE">Health check</shape-with-text>
+            <shape-with-text id="1105:6687" x="1076" y="84" name="SQUARE">Send to tg</shape-with-text>
+            <!-- цепочка: Pull image from registry → Run migrations → Deploy (compose up) → Health check → Send to tg -->
+          </section>
+        </section>
+        <shape-with-text id="1084:4716" x="137" y="48" name="SQUARE">moon</shape-with-text>
+        <connector id="1104:6643" connectorStart="1082:3991" connectorEnd="1084:4716" connectorEndCap="ARROW_LINES">remote browsers</connector>
+        <shape-with-text id="1084:4723" x="428" y="48" name="SQUARE">ReportPortal</shape-with-text>
+        <connector id="1119:4802" connectorStart="1082:3991" connectorEnd="1084:4723" connectorEndCap="ARROW_LINES">live results (RP agent)</connector>
+      </section>
+    </section>
+    <connector id="1135:5570" connectorStart="1135:5479" connectorEnd="1082:3901" connectorEndCap="ARROW_LINES">Переключаем версию релиза https://s3.site.ru/releases/current.json</connector>
+    <connector id="1082:4083" connectorStart="1082:4021" connectorEnd="1082:3901" connectorEndCap="ARROW_LINES">Заливка в releases/&lt;id&gt;/</connector>
+    <section id="1084:4730" name="VPS №7" x="3958" y="2336" width="1776" height="1104">
+      <section id="1084:4731" name="Docker Compose" x="64" y="96" width="1648" height="944">
+        <section id="1132:5027" name="Coolify" x="48" y="32" width="1536" height="864">
+          <section id="1141:5919" name="PR репы фронта открыт" x="64" y="448" width="1424" height="384">
+            <shape-with-text id="1143:5922" x="32" y="160" name="SQUARE">Clone branch</shape-with-text>
+            <shape-with-text id="1143:5953" x="368" y="160" name="SQUARE">Build image</shape-with-text>
+            <shape-with-text id="1143:5987" x="752" y="160" name="SQUARE">Deploy preview</shape-with-text>
+            <shape-with-text id="1143:6008" x="1136" y="160" name="SQUARE">Assign subdomain + TLS</shape-with-text>
+            <!-- цепочка: Clone branch → Build image → Deploy preview → Assign subdomain + TLS -->
+          </section>
+          <section id="1142:5920" name="PR репы фронта закрыт" x="64" y="48" width="1424" height="384">
+            <shape-with-text id="1143:6051" x="48" y="176" name="SQUARE">Destroy preview</shape-with-text>
+            <shape-with-text id="1143:6092" x="432" y="176" name="SQUARE">Release subdomain / cert</shape-with-text>
+            <!-- цепочка: Destroy preview → Release subdomain / cert -->
+          </section>
+        </section>
+      </section>
+    </section>
+    <section id="1085:4926" name="VPS №2" x="2758" y="3792" width="800" height="609">
+      <section id="1085:4927" name="Docker Compose" x="48" y="88" width="656" height="493">
+        <shape-with-text id="1085:4928" x="48" y="275" name="SQUARE">Caddy</shape-with-text>
+        <shape-with-text id="1085:4929" x="352" y="285" name="SQUARE">Go</shape-with-text>
+        <shape-with-text id="1085:4930" x="352" y="56" name="SQUARE">Postgres</shape-with-text>
+        <connector id="1085:4931" connectorStart="1085:4930" connectorStartCap="ARROW_LINES" connectorEnd="1085:4929"></connector>
+        <connector id="1085:4944" connectorStart="1085:4928" connectorEnd="1085:4929" connectorEndCap="ARROW_LINES"></connector>
+        <shape-with-text id="1097:6330" x="32" y="88" name="SQUARE">Node Exporter</shape-with-text>
+        <connector id="1097:6359" connectorStart="1085:4928" connectorEnd="1097:6330" connectorEndCap="ARROW_LINES"></connector>
+      </section>
+    </section>
+    <section id="1086:5088" name="VPS №3" x="4006" y="4544" width="1200" height="705">
+      <section id="1086:5089" name="Docker Compose" x="54" y="64" width="1098" height="613">
+        <shape-with-text id="1086:5090" x="74" y="96" name="SQUARE">Caddy</shape-with-text>
+        <shape-with-text id="1086:5094" x="378" y="48" name="SQUARE">Grafana</shape-with-text>
+        <shape-with-text id="1086:5095" x="74" y="325" name="SQUARE">Prometheus</shape-with-text>
+        <shape-with-text id="1097:5933" x="298" y="330" name="SQUARE">Alloy</shape-with-text>
+        <shape-with-text id="1097:5950" x="858" y="48" name="SQUARE">Loki</shape-with-text>
+        <shape-with-text id="1097:5963" x="618" y="245" name="SQUARE">Tempo</shape-with-text>
+        <shape-with-text id="1086:5098" x="618" y="453" name="SQUARE">Alert Manager</shape-with-text>
+        <connector connectorStart="1086:5090" connectorEnd="1086:5094" connectorEndCap="ARROW_LINES"></connector>
+        <connector connectorStart="1086:5090" connectorEnd="1097:5933" connectorEndCap="ARROW_LINES"></connector>
+        <connector connectorStart="1086:5094" connectorEnd="1097:5950" connectorEndCap="ARROW_LINES"></connector>
+        <connector connectorStart="1086:5094" connectorEnd="1097:5963" connectorEndCap="ARROW_LINES"></connector>
+        <connector connectorStart="1086:5094" connectorEnd="1097:5933" connectorEndCap="ARROW_LINES"></connector>
+        <connector connectorStart="1086:5095" connectorEnd="1086:5098" connectorEndCap="ARROW_LINES"></connector>
+      </section>
+    </section>
+    <connector id="1097:6320" connectorStart="1086:5095" connectorEnd="1085:4928" connectorEndCap="ARROW_LINES"></connector>
+    <connector id="1097:6299" connectorStart="1086:5095" connectorEnd="1082:3906" connectorEndCap="ARROW_LINES"></connector>
+    <section id="1087:5226" name="VPS №4" x="4054" y="4016" width="712" height="449">
+      <section id="1087:5227" name="Docker Compose" x="54" y="80" width="602" height="341">
+        <shape-with-text id="1087:5228" x="346" y="75" name="SQUARE">Caddy</shape-with-text>
+        <shape-with-text id="1087:5229" x="58" y="80" name="SQUARE">Uptime Kuma</shape-with-text>
+        <connector connectorStart="1087:5228" connectorEnd="1087:5229" connectorEndCap="ARROW_LINES"></connector>
+      </section>
+    </section>
+    <connector id="1092:5583" connectorStart="1090:5468" connectorEnd="1085:4928" connectorEndCap="ARROW_LINES">S2S через private network</connector>
+    <section id="1082:3933" name="VPS №6" x="2390" y="2725" width="336" height="326">
+      <section id="1082:3934" name="Docker Compose" x="32" y="48" width="272" height="250">
+        <shape-with-text id="1082:3935" x="32" y="80" name="SQUARE">posthog</shape-with-text>
+      </section>
+    </section>
+    <connector id="1145:6360" connectorStart="1085:4929" connectorEnd="1082:3935" connectorEndCap="ARROW_LINES"></connector>
+    <section id="1105:6738" name="VPS №8" x="122" y="2725" width="544" height="449">
+      <section id="1105:6739" name="k8s" x="80" y="81" width="368" height="272">
+        <shape-with-text id="1105:6770" x="76" y="80" name="SQUARE">unleash</shape-with-text>
+      </section>
+    </section>
+    <connector id="1134:5346" connectorStart="1134:5237" connectorEnd="1105:6770" connectorEndCap="ARROW_LINES"></connector>
+    <connector id="1128:4927" connectorStart="1128:4824" connectorEnd="1082:3901" connectorEndCap="ARROW_LINES">Обновляем версию релиза https://s3.site.ru/releases/current.json</connector>
+    <connector id="1105:6853" connectorStart="1090:5468" connectorEnd="1105:6770" connectorEndCap="ARROW_LINES"></connector>
+  </section>
+  <connector id="1119:4806" connectorStart="1082:3992" connectorEnd="1084:4819" connectorEndCap="ARROW_LINES">allurectl upload</connector>
+  <connector id="1082:3936" connectorStart="1082:3906" connectorStartCap="ARROW_LINES" connectorEnd="1082:3897">https://site.ru</connector>
+  <connector id="1082:3939" connectorStart="1082:3902" connectorStartCap="ARROW_LINES" connectorEnd="1082:3897">https://static.site.ru/[static]</connector>
+  <section id="1082:3940" name="Github" x="1008" y="3376" width="2914" height="3616">
+    <section id="1082:3941" name="React repo" x="1360" y="32" width="1468" height="288">
+      <section id="1082:3942" name="React release pipeline">
+        <!-- цепочка: Install deps → Lint → Build → Deploy to NPM → Send to tg -->
+      </section>
+    </section>
+    <section id="1082:3958" name="UI Kit repo" x="160" y="400" width="2668" height="288">
+      <section id="1082:3959" name="Storybook deploy pipeline">
+        <!-- цепочка: Install deps → Build → Deploy to Pages → Send to tg -->
+      </section>
+      <section id="1082:3971" name="UI Kit release pipeline">
+        <!-- цепочка: Install deps → Lint → Build → Deploy to NPM → Send to tg -->
+      </section>
+    </section>
+    <section id="1082:3989" name="E2E repo" x="2168" y="1148" width="696" height="288" />
+    <section id="1082:4001" name="Static repo" x="2208" y="1553" width="656" height="288">
+      <section id="1082:4002" name="Static pipeline">
+        <!-- цепочка: Deploy to s3 → Send to tg -->
+      </section>
+    </section>
+    <section id="1082:4006" name="Backend repo" x="1360" y="3200" width="1504" height="368">
+      <section id="1105:6883" name="CI Pipeline">
+        <!-- цепочка: Build → Units → Lint → Build → Send to tg -->
+      </section>
+    </section>
+    <section id="1082:4017" name="Frontend monorepo (client + BFF)" x="974" y="2233" width="1890" height="508">
+      <section id="1104:6470" name="CI Pipeline">
+        <!-- цепочка: detect affected → Install deps → Lint → Units → Build → Send bundle stats → Send to tg -->
+      </section>
+    </section>
+    <section id="1082:4046" name="Pages" x="2304" y="736" width="516" height="256">
+      <shape-with-text id="1082:4048" name="SQUARE">Storybook</shape-with-text>
+      <!-- https://storybook.site.ru/ -->
+    </section>
+    <connector connectorStart="1082:3963 (Deploy to Pages)" connectorEnd="1082:4048" connectorEndCap="ARROW_LINES"></connector>
+    <section id="1082:4066" name="Deployments repo" x="1296" y="1896" width="1568" height="288">
+      <shape-with-text id="1133:5187" name="SQUARE">Pulumi configs</shape-with-text>
+      <shape-with-text id="1082:4067" name="SQUARE">caddy.conf</shape-with-text>
+      <shape-with-text id="1082:4068" name="SQUARE">docker-compose.yml</shape-with-text>
+      <shape-with-text id="1082:4069" name="SQUARE">monitoring configuration</shape-with-text>
+      <shape-with-text id="1082:4070" name="SQUARE">ansible roles / playbooks</shape-with-text>
+      <shape-with-text id="1082:4071" name="SQUARE">ansible vault</shape-with-text>
+    </section>
+  </section>
+  <!-- Связи GitHub ↔ внешнее -->
+  <connector connectorStart="UI Kit release: Install deps" connectorEnd="NPM Registry" connectorEndCap="ARROW_LINES"></connector>
+  <connector connectorStart="Storybook deploy: Install deps" connectorEnd="@my/react" connectorEndCap="ARROW_LINES"></connector>
+  <connector connectorStart="React release: Deploy to NPM" connectorEnd="@my/react" connectorEndCap="ARROW_LINES"></connector>
+  <connector connectorStart="UI Kit release: Deploy to NPM" connectorEnd="@my/ui-kit" connectorEndCap="ARROW_LINES"></connector>
+  <connector connectorStart="Static pipeline: Deploy to s3" connectorEnd="1082:3901 (S3)" connectorEndCap="ARROW_LINES"></connector>
+  <connector connectorStart="1082:3906 (Caddy VPS1)" connectorStartCap="ARROW_LINES" connectorEnd="1082:3897 (Client)">https://site.ru/api</connector>
+  <section id="1082:4086" name="VK Cloud" x="5424" y="7601" width="764" height="427">
+    <shape-with-text id="1082:4088" name="SQUARE">VK Cloud Voice</shape-with-text>
+    <shape-with-text id="1082:4089" name="SQUARE">VK ID</shape-with-text>
+    <shape-with-text id="1082:4087" name="SQUARE">App Tracer</shape-with-text>
+  </section>
+  <connector connectorStart="1082:4087 (App Tracer)" connectorStartCap="ARROW_LINES" connectorEnd="1082:3897 (Client)"></connector>
+  <rounded-rectangle id="1082:4093" name="Logo 1 (Telegram)" x="4954" y="7754" width="121" height="121" />
+  <connector connectorStart="1086:5098 (Alert Manager)" connectorEnd="1082:4093 (Telegram)" connectorEndCap="ARROW_LINES">backend alerts</connector>
+  <connector connectorStart="1082:4087 (App Tracer)" connectorEnd="1082:4093 (Telegram)" connectorEndCap="ARROW_LINES">frontend alerts</connector>
+  <connector connectorStart="1082:4048 (Storybook)" connectorStartCap="ARROW_LINES" connectorEnd="1082:3897 (Client)"></connector>
+  <connector connectorStart="1082:3935 (posthog)" connectorStartCap="ARROW_LINES" connectorEnd="1082:3897 (Client)">https://posthog.site.ru</connector>
+  <connector connectorStart="1082:3882 (ЮMoney API)" connectorEnd="1082:3906 (Caddy VPS1)" connectorEndCap="ARROW_LINES">https://site.ru/payment-callback</connector>
+  <connector connectorStart="1082:3897 (Client)" connectorEnd="1082:3883 (ЮMoney страница оплаты)" connectorEndCap="ARROW_LINES"></connector>
+  <section id="1082:4121" name="Relative CI" x="593" y="7568" width="446" height="427">
+    <shape-with-text id="1082:4122" name="SQUARE">Relative CI</shape-with-text>
+  </section>
+  <connector connectorStart="Frontend CI: Send bundle stats" connectorEnd="1082:4122 (Relative CI)" connectorEndCap="ARROW_LINES"></connector>
+  <connector connectorStart="1082:3897 (Client)" connectorEnd="1082:4122 (Relative CI)" connectorEndCap="ARROW_LINES">https://app.relative-ci.com/projects/&lt;PROJECT_ID&gt;</connector>
+  <section id="1145:6118" name="One Signal" x="8496" y="512" width="496" height="304">
+    <shape-with-text id="1145:6119" name="SQUARE">One Signal</shape-with-text>
+  </section>
+  <connector connectorStart="1085:4929 (Go)" connectorEnd="1145:6119 (One Signal)" connectorEndCap="ARROW_LINES"></connector>
+  <connector connectorStart="Client browser 2" connectorEnd="1145:6119 (One Signal)" connectorEndCap="ARROW_LINES">sdk</connector>
+  <connector connectorStart="1086:5090 (Caddy VPS3)" connectorStartCap="ARROW_LINES" connectorEnd="Client browser 3">https://grafana.site.ru</connector>
+  <connector connectorStart="1086:5090 (Caddy VPS3)" connectorStartCap="ARROW_LINES" connectorEnd="Client browser 3" connectorEndCap="ARROW_LINES">метрики grafana faro с фронта</connector>
+  <connector connectorStart="1087:5228 (Caddy VPS4)" connectorStartCap="ARROW_LINES" connectorEnd="Client browser 4">https://kuma.site.ru</connector>
+</section>
