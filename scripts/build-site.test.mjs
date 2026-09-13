@@ -4,6 +4,7 @@ import {
   assignSlugs,
   branchSlug,
   escapeHtml,
+  fetchArgs,
   parseBranches,
   renderPreviewsIndex,
   renderSummary,
@@ -19,6 +20,15 @@ test("branchSlug replaces unsafe characters with single dashes and trims them", 
 
 test("branchSlug falls back to branch when nothing safe is left", () => {
   assert.equal(branchSlug("схемы/новые"), "branch");
+});
+
+test("branchSlug turns a slug made only of dots into branch", () => {
+  assert.equal(branchSlug("ы.ы"), "branch");
+});
+
+test("fetchArgs adds --depth=1 only for a shallow clone and always prunes", () => {
+  assert.deepEqual(fetchArgs(true), ["fetch", "--depth=1", "--no-tags", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*"]);
+  assert.deepEqual(fetchArgs(false), ["fetch", "--no-tags", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*"]);
 });
 
 test("assignSlugs sorts by name and suffixes a colliding slug with the short sha", () => {

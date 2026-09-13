@@ -1,6 +1,6 @@
 // Собирает сайт Pages: main в dist/, каждую ветку origin в dist/branches/<slug>/.
 // Спека: docs/superpowers/specs/2026-09-13-branch-previews-design.md §4.
-// Использование: bun scripts/build-site.mjs
+// Использование: bun scripts/build-site.mjs [--main-built]
 import { appendFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -10,6 +10,7 @@ import { diagramNames, renderIndex } from "./build-index.mjs";
 
 const MAIN_BRANCH = "main";
 const BRANCH_STEP_TIMEOUT_MS = 5 * 60 * 1000;
+const SITE_BRANCH_BUDGET_MS = 30 * 60 * 1000;
 const ICON_CACHE_DIR = join(".eraser", "icons");
 // Имя, которое slug ветки занимать не может: там лежит список превью.
 const RESERVED_SLUGS = ["index.html"];
@@ -19,7 +20,7 @@ export function branchSlug(name) {
     .replace(/[^A-Za-z0-9._-]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
-  return slug || "branch";
+  return slug && !/^\.+$/.test(slug) ? slug : "branch";
 }
 
 export function assignSlugs(branches) {
@@ -45,6 +46,11 @@ export function parseBranches(output) {
       return { name: line.slice(0, space), sha: line.slice(space + 1) };
     })
     .filter(({ name }) => name !== "HEAD" && name !== MAIN_BRANCH);
+}
+
+// Аргументы git fetch: --depth=1 только для неглубокого клона, чтобы локальный запуск не обрезал историю.
+export function fetchArgs(shallow) {
+  return ["fetch", ...(shallow ? ["--depth=1"] : []), "--no-tags", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*"];
 }
 
 export function escapeHtml(text) {
@@ -104,23 +110,39 @@ export function renderSummary(entries) {
   return ["### Превью веток", "", ...(lines.length ? lines : ["Других веток нет."]), ""].join("\n");
 }
 
+// bun и node при таймауте спавна отдают result.error.code === "ETIMEDOUT" и signal "SIGKILL".
+function isTimeout(result, options) {
+  return Boolean(options.timeout) && result.error?.code === "ETIMEDOUT";
+}
+
+// Возвращает "ok", "failed" или "timeout".
 function run(cmd, args, options = {}) {
-  const result = spawnSync(cmd, args, { stdio: "inherit", ...options });
+  const result = spawnSync(cmd, args, { stdio: "inherit", killSignal: "SIGKILL", ...options });
+  if (isTimeout(result, options)) {
+    console.error(`${cmd} ${args.join(" ")}: timed out`);
+    return "timeout";
+  }
   if (result.error) {
     console.error(`${cmd} ${args.join(" ")}: ${result.error.message}`);
-    return false;
+    return "failed";
   }
-  return result.status === 0;
+  return result.status === 0 ? "ok" : "failed";
+}
+
+function stepFailure(step, outcome) {
+  return { status: "failed", failedStep: outcome === "timeout" ? `${step} (timeout)` : step };
 }
 
 function buildBranch(branch, tmpRoot) {
   const dir = join(tmpRoot, branch.slug);
-  if (!run("git", ["worktree", "add", "--detach", dir, branch.sha])) {
-    return { status: "failed", failedStep: "worktree" };
+  const worktreeOutcome = run("git", ["worktree", "add", "--detach", dir, branch.sha]);
+  if (worktreeOutcome !== "ok") {
+    return stepFailure("worktree", worktreeOutcome);
   }
   try {
     const options = { cwd: dir, timeout: BRANCH_STEP_TIMEOUT_MS };
-    if (!run("bun", ["install", "--frozen-lockfile"], options)) return { status: "failed", failedStep: "bun install" };
+    const installOutcome = run("bun", ["install", "--frozen-lockfile"], options);
+    if (installOutcome !== "ok") return stepFailure("bun install", installOutcome);
     // Кэш иконок основной сборки: ветке не нужно заново качать те же SVG.
     if (existsSync(ICON_CACHE_DIR)) {
       try {
@@ -129,7 +151,8 @@ function buildBranch(branch, tmpRoot) {
         console.error(`site: icon cache not copied for ${branch.name}: ${error.message}`);
       }
     }
-    if (!run("bun", ["run", "build"], options)) return { status: "failed", failedStep: "bun run build" };
+    const buildOutcome = run("bun", ["run", "build"], options);
+    if (buildOutcome !== "ok") return stepFailure("bun run build", buildOutcome);
     if (!existsSync(join(dir, "dist", "index.html"))) return { status: "failed", failedStep: "dist" };
     try {
       cpSync(join(dir, "dist"), join("dist", "branches", branch.slug), { recursive: true });
@@ -143,12 +166,20 @@ function buildBranch(branch, tmpRoot) {
   }
 }
 
-function main() {
-  if (!run("bun", ["run", "build"])) {
+function main(argv) {
+  const started = Date.now();
+  if (argv.includes("--main-built")) {
+    if (!existsSync(join("dist", "index.html"))) {
+      console.error("site: --main-built given but dist/index.html is missing");
+      return 1;
+    }
+  } else if (run("bun", ["run", "build"]) !== "ok") {
     console.error("site: main build failed");
     return 1;
   }
-  if (!run("git", ["fetch", "--depth=1", "--no-tags", "origin", "+refs/heads/*:refs/remotes/origin/*"])) {
+  const shallow =
+    spawnSync("git", ["rev-parse", "--is-shallow-repository"], { encoding: "utf8" }).stdout?.trim() === "true";
+  if (run("git", fetchArgs(shallow)) !== "ok") {
     console.error("site: git fetch failed");
     return 1;
   }
@@ -170,12 +201,21 @@ function main() {
   const entries = [];
   try {
     for (const branch of branches) {
+      if (Date.now() - started > SITE_BRANCH_BUDGET_MS) {
+        console.error(`site: time budget exhausted, skipping ${branch.name}`);
+        entries.push({ ...branch, status: "failed", failedStep: "time budget" });
+        continue;
+      }
       console.error(`site: building ${branch.name} into branches/${branch.slug}/`);
       entries.push({ ...branch, ...buildBranch(branch, tmpRoot) });
     }
   } finally {
     run("git", ["worktree", "prune"]);
-    rmSync(tmpRoot, { recursive: true, force: true });
+    try {
+      rmSync(tmpRoot, { recursive: true, force: true, maxRetries: 3 });
+    } catch (error) {
+      console.error(`site: temp dir not removed: ${error.message}`);
+    }
   }
 
   writeFileSync(join(previewsDir, "index.html"), renderPreviewsIndex(entries));
@@ -189,5 +229,5 @@ function main() {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  process.exit(main());
+  process.exit(main(process.argv.slice(2)));
 }
