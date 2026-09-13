@@ -6,6 +6,7 @@
   "scripts": {
     "test": "bun test",
     "validate": "bun scripts/eraser.mjs validate",
+    "check": "bun scripts/check-colors.mjs",
     "render": "bun scripts/eraser.mjs render -f html && bun scripts/eraser.mjs render -f png",
     "index": "bun scripts/build-index.mjs",
     "build": "bun run validate && bun run render && bun run index",
