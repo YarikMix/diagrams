@@ -12,28 +12,38 @@ const FLOW_BY_KEY = Object.fromEntries(FLOWS.map((f) => [f.key, f]));
 const show = (value) => (value === undefined ? "none" : String(value));
 
 function checkGroup(group, byId, problems) {
+  let hadProblem = false;
   if (!group.containerId) {
     if (!ZONE_COLORS.includes(group.color)) {
       problems.push(`${group.id}: top-level group color must be one of ${ZONE_COLORS.join(", ")}, got ${show(group.color)}`);
+      hadProblem = true;
     }
     if (group.styleMode !== undefined) {
       problems.push(`${group.id}: top-level group must not set styleMode, got ${group.styleMode}`);
+      hadProblem = true;
     }
-    return;
+    return hadProblem;
   }
   const parentColor = byId[group.containerId]?.color;
-  if (group.color !== parentColor) {
+  if (ZONE_COLORS.includes(parentColor) && group.color !== parentColor) {
     problems.push(`${group.id}: nested group color must equal ${group.containerId} color ${show(parentColor)}, got ${show(group.color)}`);
+    hadProblem = true;
   }
   if (group.styleMode !== "plain") {
     problems.push(`${group.id}: nested group styleMode must be plain, got ${show(group.styleMode)}`);
+    hadProblem = true;
   }
+  return hadProblem;
 }
 
-function checkLegend(doc, problems) {
+function checkLegend(doc, problems, skipEntries) {
   const legends = doc.entities.filter((e) => e.tag === "Legend");
   if (legends.length !== 1) {
-    problems.push(`legend: expected exactly one Legend, found ${legends.length}`);
+    if (legends.length === 0) {
+      problems.push(`legend: expected exactly one Legend, found 0; entries: ${JSON.stringify(expectedLegend(doc))}`);
+    } else {
+      problems.push(`legend: expected exactly one Legend, found ${legends.length}`);
+    }
     return;
   }
   const [legend] = legends;
@@ -45,6 +55,7 @@ function checkLegend(doc, problems) {
       problems.push(`${legend.id}: Legend must not set ${field}`);
     }
   }
+  if (skipEntries) return;
   const expected = expectedLegend(doc);
   if (!isDeepStrictEqual(legend.entries, expected)) {
     problems.push(`${legend.id}: entries must be ${JSON.stringify(expected)}`);
@@ -54,11 +65,15 @@ function checkLegend(doc, problems) {
 export function checkDiagram(doc) {
   const problems = [];
   const byId = indexById(doc);
+  let hasGroupProblem = false;
   for (const entity of doc.entities) {
     if (entity.tag === "Group") {
-      checkGroup(entity, byId, problems);
+      if (checkGroup(entity, byId, problems)) hasGroupProblem = true;
     } else if (entity.tag !== "Legend" && entity.color !== undefined) {
       problems.push(`${entity.id}: ${entity.tag} must not set color`);
+    }
+    if (entity.icon === "telegram" && entity.id !== "telegram") {
+      problems.push(`${entity.id}: a Telegram icon node must have id "telegram", otherwise arrows into it are not typed as alerts`);
     }
   }
   for (const connection of doc.connections) {
@@ -70,7 +85,7 @@ export function checkDiagram(doc) {
       );
     }
   }
-  checkLegend(doc, problems);
+  checkLegend(doc, problems, hasGroupProblem);
   return problems;
 }
 

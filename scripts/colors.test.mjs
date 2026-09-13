@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { FLOWS, PALETTE_HEX, ZONES, expectedLegend, flowOf } from "./colors.mjs";
+import { readFileSync } from "node:fs";
+import { DEFAULT_EDGE_HEX, FLOWS, PALETTE_HEX, ZONES, expectedLegend, flowOf } from "./colors.mjs";
 
 const byId = {
   client: { tag: "Icon", id: "client" },
@@ -72,4 +73,13 @@ test("PALETTE_HEX matches the palette of the installed eraser-diagrams engine", 
   for (const [name, hex] of Object.entries(PALETTE_HEX)) {
     assert.equal(STOCK_PALETTE[name], hex, name);
   }
+});
+
+test("DEFAULT_EDGE_HEX is still the engine's default arrow color", () => {
+  const normalizersUrl = new URL(
+    "../node_modules/@eraserlabs/diagrams/dist/library/normalizers.js",
+    import.meta.url,
+  );
+  const source = readFileSync(normalizersUrl, "utf8");
+  assert.ok(source.includes(DEFAULT_EDGE_HEX));
 });

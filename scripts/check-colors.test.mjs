@@ -10,11 +10,15 @@ function validDoc() {
       { tag: "Icon", id: "api", x: 40, y: 80, containerId: "vps", icon: "server", texts: [{ text: "API" }] },
       { tag: "Icon", id: "db", x: 180, y: 80, containerId: "vps", icon: "database", texts: [{ text: "DB" }] },
       { tag: "Icon", id: "client", x: 500, y: 80, icon: "chrome", texts: [{ text: "Client" }] },
+      { tag: "Activity", id: "deploy", x: 40, y: 200, width: 120, height: 60, containerId: "vps", texts: [{ text: "Deploy" }] },
+      { tag: "Icon", id: "telegram", x: 500, y: 240, icon: "telegram", texts: [{ text: "Telegram" }] },
       {
         tag: "Legend", id: "legend", x: 700, y: 0, width: 340,
         entries: [
           { text: "Наша инфраструктура", color: "#2866c4" },
           { text: "Пользовательский трафик", color: "#c38424" },
+          { text: "Пайплайн и внешние системы, пунктир", color: "#3a3a3a" },
+          { text: "Алерты и уведомления, точки", color: "#bd413a" },
           { text: "Прочие связи", color: "#1c1c1c" },
         ],
       },
@@ -22,12 +26,13 @@ function validDoc() {
     connections: [
       { tag: "Relationship", from: "client", to: "api", color: "orange", lineStyle: "solid" },
       { tag: "Relationship", from: "api", to: "db" },
+      { tag: "Relationship", from: "deploy", to: "db", color: "black", lineStyle: "dashed" },
+      { tag: "Relationship", from: "vps", to: "telegram", color: "red", lineStyle: "dotted" },
     ],
   };
 }
 
 const entity = (doc, id) => doc.entities.find((e) => e.id === id);
-const linesFor = (doc, id) => checkDiagram(doc).filter((line) => line.startsWith(`${id}:`));
 
 test("a diagram that follows the convention has no problems", () => {
   assert.deepEqual(checkDiagram(validDoc()), []);
@@ -46,12 +51,36 @@ const violations = [
   ["legend with a wrong id", "key", (d) => { entity(d, "legend").id = "key"; }],
   ["legend with a color", "legend", (d) => { entity(d, "legend").color = "blue"; }],
   ["legend entries in a wrong order", "legend", (d) => { entity(d, "legend").entries.reverse(); }],
+  ["legend with containerId", "legend", (d) => { entity(d, "legend").containerId = "ours"; }],
+  ["legend with styleMode", "legend", (d) => { entity(d, "legend").styleMode = "plain"; }],
+  ["Telegram icon with another id", "tg", (d) => {
+    entity(d, "telegram").id = "tg";
+    d.connections[3].to = "tg";
+    delete d.connections[3].color;
+    delete d.connections[3].lineStyle;
+    entity(d, "legend").entries = entity(d, "legend").entries.filter(
+      (e) => e.text !== "Алерты и уведомления, точки",
+    );
+  }],
 ];
 
 for (const [name, id, mutate] of violations) {
   test(`reports ${name} exactly once under id ${id}`, () => {
     const doc = validDoc();
     mutate(doc);
-    assert.equal(linesFor(doc, id).length, 1, checkDiagram(doc).join("\n"));
+    const problems = checkDiagram(doc);
+    assert.equal(problems.length, 1, problems.join("\n"));
+    assert.ok(problems[0].startsWith(`${id}:`), problems[0]);
   });
 }
+
+test("the missing-legend message includes the expected entries", () => {
+  const doc = validDoc();
+  doc.entities = doc.entities.filter((e) => e.tag !== "Legend");
+  const problems = checkDiagram(doc);
+  assert.equal(problems.length, 1, problems.join("\n"));
+  assert.ok(
+    problems[0].includes('entries: [{"text":"Наша инфраструктура"'),
+    problems[0],
+  );
+});
