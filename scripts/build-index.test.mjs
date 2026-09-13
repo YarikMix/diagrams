@@ -24,3 +24,8 @@ test("renderIndex: one card per diagram with html link, png link and preview", (
   assert.match(html, /<h2>ci<\/h2>/);
   assert.doesNotMatch(html, /<link|<script/);
 });
+
+test("renderIndex: links branch previews only when previewsHref is given", () => {
+  assert.match(renderIndex(["ci"], { previewsHref: "branches/" }), /<a href="branches\/">Превью веток<\/a>/);
+  assert.doesNotMatch(renderIndex(["ci"]), /Превью веток/);
+});
