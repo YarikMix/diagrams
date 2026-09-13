@@ -1,12 +1,76 @@
 {
   "entities": [
-    { "tag": "Group", "id": "vps2", "x": 0, "y": 0, "width": 420, "height": 200, "isContainer": true, "title": { "text": "VPS 2", "icon": "docker" } },
-    { "tag": "Icon", "id": "vps2-caddy", "x": 20, "y": 60, "containerId": "vps2", "icon": "server", "texts": [{ "text": "Caddy" }] },
-    { "tag": "Icon", "id": "vps2-go", "x": 160, "y": 60, "containerId": "vps2", "icon": "go", "texts": [{ "text": "Go API" }] },
-    { "tag": "Icon", "id": "vps2-pg", "x": 300, "y": 60, "containerId": "vps2", "icon": "postgres", "texts": [{ "text": "Postgres" }] }
+    { "tag": "Icon", "id": "client", "x": 60, "y": 340, "icon": "chrome", "texts": [{ "text": "Client (браузер)" }] },
+
+    { "tag": "Group", "id": "selectel", "x": 300, "y": 0, "width": 1660, "height": 720, "isContainer": true, "title": { "text": "Selectel", "icon": "cloud" } },
+
+    { "tag": "Group", "id": "vps1", "x": 320, "y": 40, "width": 420, "height": 160, "containerId": "selectel", "isContainer": true, "title": { "text": "VPS 1 · Docker Compose", "icon": "docker" } },
+    { "tag": "Icon", "id": "vps1-caddy", "x": 340, "y": 80, "containerId": "vps1", "icon": "server", "texts": [{ "text": "Caddy" }] },
+    { "tag": "Icon", "id": "vps1-bff", "x": 480, "y": 80, "containerId": "vps1", "icon": "hono", "texts": [{ "text": "BFF (Hono)" }] },
+    { "tag": "Icon", "id": "vps1-node-exporter", "x": 620, "y": 80, "containerId": "vps1", "icon": "monitor", "texts": [{ "text": "Node Exporter" }] },
+
+    { "tag": "Group", "id": "vps2", "x": 780, "y": 40, "width": 560, "height": 160, "containerId": "selectel", "isContainer": true, "title": { "text": "VPS 2 · Docker Compose", "icon": "docker" } },
+    { "tag": "Icon", "id": "vps2-caddy", "x": 800, "y": 80, "containerId": "vps2", "icon": "server", "texts": [{ "text": "Caddy" }] },
+    { "tag": "Icon", "id": "vps2-go", "x": 940, "y": 80, "containerId": "vps2", "icon": "go", "texts": [{ "text": "Go API" }] },
+    { "tag": "Icon", "id": "vps2-postgres", "x": 1080, "y": 80, "containerId": "vps2", "icon": "postgres", "texts": [{ "text": "Postgres" }] },
+    { "tag": "Icon", "id": "vps2-node-exporter", "x": 1220, "y": 80, "containerId": "vps2", "icon": "monitor", "texts": [{ "text": "Node Exporter" }] },
+
+    { "tag": "Group", "id": "vps3", "x": 1380, "y": 40, "width": 560, "height": 280, "containerId": "selectel", "isContainer": true, "title": { "text": "VPS 3 · Docker Compose", "icon": "docker" } },
+    { "tag": "Icon", "id": "vps3-caddy", "x": 1400, "y": 80, "containerId": "vps3", "icon": "server", "texts": [{ "text": "Caddy" }] },
+    { "tag": "Icon", "id": "vps3-grafana", "x": 1540, "y": 80, "containerId": "vps3", "icon": "grafana", "texts": [{ "text": "Grafana" }] },
+    { "tag": "Icon", "id": "vps3-prometheus", "x": 1680, "y": 80, "containerId": "vps3", "icon": "prometheus", "texts": [{ "text": "Prometheus" }] },
+    { "tag": "Icon", "id": "vps3-alloy", "x": 1820, "y": 80, "containerId": "vps3", "icon": "opentelemetry", "texts": [{ "text": "Alloy" }] },
+    { "tag": "Icon", "id": "vps3-loki", "x": 1400, "y": 200, "containerId": "vps3", "icon": "database", "texts": [{ "text": "Loki" }] },
+    { "tag": "Icon", "id": "vps3-tempo", "x": 1540, "y": 200, "containerId": "vps3", "icon": "tempo", "texts": [{ "text": "Tempo" }] },
+    { "tag": "Icon", "id": "vps3-alertmanager", "x": 1680, "y": 200, "containerId": "vps3", "icon": "bell", "texts": [{ "text": "Alert Manager" }] },
+
+    { "tag": "Icon", "id": "s3", "x": 340, "y": 340, "containerId": "selectel", "icon": "database", "texts": [{ "text": "S3" }] },
+    { "tag": "Icon", "id": "cdn", "x": 480, "y": 340, "containerId": "selectel", "icon": "cloud", "texts": [{ "text": "CDN" }] },
+    { "tag": "Icon", "id": "domain", "x": 620, "y": 340, "containerId": "selectel", "icon": "globe", "texts": [{ "text": "site.ru" }] },
+
+    { "tag": "Group", "id": "vps4", "x": 780, "y": 340, "width": 280, "height": 160, "containerId": "selectel", "isContainer": true, "title": { "text": "VPS 4 · Docker Compose", "icon": "docker" } },
+    { "tag": "Icon", "id": "vps4-caddy", "x": 800, "y": 380, "containerId": "vps4", "icon": "server", "texts": [{ "text": "Caddy" }] },
+    { "tag": "Icon", "id": "vps4-kuma", "x": 940, "y": 380, "containerId": "vps4", "icon": "monitor", "texts": [{ "text": "Uptime Kuma" }] },
+
+    { "tag": "Group", "id": "vps5", "x": 1100, "y": 340, "width": 420, "height": 160, "containerId": "selectel", "isContainer": true, "title": { "text": "VPS 5 · k8s", "icon": "kubernetes" } },
+    { "tag": "Icon", "id": "vps5-arc", "x": 1120, "y": 380, "containerId": "vps5", "icon": "github-actions", "texts": [{ "text": "ARC runners" }] },
+    { "tag": "Icon", "id": "vps5-moon", "x": 1260, "y": 380, "containerId": "vps5", "icon": "chrome", "texts": [{ "text": "moon" }] },
+    { "tag": "Icon", "id": "vps5-reportportal", "x": 1400, "y": 380, "containerId": "vps5", "icon": "monitor", "texts": [{ "text": "ReportPortal" }] },
+
+    { "tag": "Group", "id": "vps6", "x": 320, "y": 540, "width": 260, "height": 160, "containerId": "selectel", "isContainer": true, "title": { "text": "VPS 6 · Docker Compose", "icon": "docker" } },
+    { "tag": "Icon", "id": "vps6-posthog", "x": 340, "y": 580, "containerId": "vps6", "icon": "posthog", "texts": [{ "text": "PostHog" }] },
+
+    { "tag": "Group", "id": "vps7", "x": 600, "y": 540, "width": 260, "height": 160, "containerId": "selectel", "isContainer": true, "title": { "text": "VPS 7 · Docker Compose", "icon": "docker" } },
+    { "tag": "Icon", "id": "vps7-coolify", "x": 620, "y": 580, "containerId": "vps7", "icon": "rocket", "texts": [{ "text": "Coolify" }] },
+
+    { "tag": "Group", "id": "vps8", "x": 880, "y": 540, "width": 260, "height": 160, "containerId": "selectel", "isContainer": true, "title": { "text": "VPS 8 · k8s", "icon": "kubernetes" } },
+    { "tag": "Icon", "id": "vps8-unleash", "x": 1020, "y": 580, "containerId": "vps8", "icon": "package", "texts": [{ "text": "unleash" }] }
   ],
   "connections": [
-    { "tag": "Relationship", "from": "vps2-caddy", "to": "vps2-go", "label": "proxy" },
-    { "tag": "Relationship", "from": "vps2-go", "to": "vps2-pg" }
+    { "tag": "Relationship", "from": "client", "to": "vps1-caddy", "label": "https://site.ru, /api" },
+    { "tag": "Relationship", "from": "client", "to": "cdn", "label": "https://static.site.ru" },
+    { "tag": "Relationship", "from": "client", "to": "vps3-caddy", "label": "grafana.site.ru" },
+    { "tag": "Relationship", "from": "client", "to": "vps4-caddy", "label": "kuma.site.ru" },
+
+    { "tag": "Relationship", "from": "vps1-caddy", "to": "vps1-bff" },
+    { "tag": "Relationship", "from": "vps1-caddy", "to": "cdn", "label": "proxy pass static" },
+    { "tag": "Relationship", "from": "vps1-bff", "to": "vps2-go", "label": "S2S, private network" },
+    { "tag": "Relationship", "from": "vps1-bff", "to": "s3", "label": "index.html релиза" },
+    { "tag": "Relationship", "from": "vps1-bff", "to": "vps8-unleash" },
+    { "tag": "Relationship", "from": "s3", "to": "cdn", "label": "static" },
+
+    { "tag": "Relationship", "from": "vps2-caddy", "to": "vps2-go" },
+    { "tag": "Relationship", "from": "vps2-go", "to": "vps2-postgres" },
+    { "tag": "Relationship", "from": "vps2-go", "to": "vps6-posthog" },
+
+    { "tag": "Relationship", "from": "vps3-caddy", "to": "vps3-grafana" },
+    { "tag": "Relationship", "from": "vps3-grafana", "to": "vps3-loki" },
+    { "tag": "Relationship", "from": "vps3-grafana", "to": "vps3-tempo" },
+    { "tag": "Relationship", "from": "vps3-grafana", "to": "vps3-alloy" },
+    { "tag": "Relationship", "from": "vps3-prometheus", "to": "vps3-alertmanager" },
+    { "tag": "Relationship", "from": "vps3-prometheus", "to": "vps1-node-exporter" },
+    { "tag": "Relationship", "from": "vps3-prometheus", "to": "vps2-node-exporter" },
+
+    { "tag": "Relationship", "from": "vps4-caddy", "to": "vps4-kuma" }
   ]
 }
