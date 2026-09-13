@@ -1,6 +1,6 @@
 // Обновляет icons.txt: имена иконок публичного каталога Eraser
 // (https://storage.googleapis.com/eraser-public-assets/canvas-icons/<name>.svg).
-// Использование: node scripts/fetch-icons.mjs
+// Использование: bun scripts/fetch-icons.mjs
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";

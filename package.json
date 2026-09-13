@@ -2,14 +2,14 @@
   "name": "diagrams",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12" },
+  "engines": { "node": ">=22.12", "bun": ">=1.3" },
   "scripts": {
-    "test": "node --test",
-    "validate": "node scripts/eraser.mjs validate",
-    "render": "node scripts/eraser.mjs render -f html && node scripts/eraser.mjs render -f png",
-    "index": "node scripts/build-index.mjs",
-    "build": "npm run validate && npm run render && npm run index",
-    "icons": "node scripts/fetch-icons.mjs"
+    "test": "bun test",
+    "validate": "bun scripts/eraser.mjs validate",
+    "render": "bun scripts/eraser.mjs render -f html && bun scripts/eraser.mjs render -f png",
+    "index": "bun scripts/build-index.mjs",
+    "build": "bun run validate && bun run render && bun run index",
+    "icons": "bun scripts/fetch-icons.mjs"
   },
   "devDependencies": {
     "@eraserlabs/diagrams-cli": "0.1.0"

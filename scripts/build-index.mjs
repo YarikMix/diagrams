@@ -1,6 +1,6 @@
 // Собирает dist/index.html: заголовок, ссылки на <name>.html и <name>.png,
 // превью PNG. Один статичный файл, CSS встроен, зависимостей нет.
-// Использование: node scripts/build-index.mjs
+// Использование: bun scripts/build-index.mjs
 import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

@@ -1,6 +1,8 @@
 // Обёртка над eraser-diagrams CLI. Подставляет diagrams/*.json вместо glob,
 // потому что cmd.exe на Windows glob не раскрывает, а CLI сам этого не делает.
-// Использование: node scripts/eraser.mjs <command> [cli options...]
+// CLI запускается под node: под bun запуск Chrome зависает
+// (docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md §2.1).
+// Использование: bun scripts/eraser.mjs <command> [cli options...]
 import { readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
@@ -27,10 +29,14 @@ export function buildArgs(command, files, extra) {
   return [command, ...files, ...extra];
 }
 
+export function rendererCommand(command, files, extra) {
+  return { cmd: "node", args: [cliEntry(), ...buildArgs(command, files, extra)] };
+}
+
 function main(argv) {
   const [command, ...extra] = argv;
   if (!command) {
-    console.error("usage: node scripts/eraser.mjs <command> [cli options...]");
+    console.error("usage: bun scripts/eraser.mjs <command> [cli options...]");
     return 2;
   }
   const files = listDiagrams();
@@ -38,9 +44,12 @@ function main(argv) {
     console.error(`no *.json files in ${DIAGRAMS_DIR}/`);
     return 2;
   }
-  const result = spawnSync(process.execPath, [cliEntry(), ...buildArgs(command, files, extra)], {
-    stdio: "inherit",
-  });
+  const { cmd, args } = rendererCommand(command, files, extra);
+  const result = spawnSync(cmd, args, { stdio: "inherit" });
+  if (result.error?.code === "ENOENT") {
+    console.error("node not found on PATH: the eraser-diagrams renderer needs Node >= 22.12");
+    return 2;
+  }
   if (result.error) {
     console.error(result.error.message);
     return 1;
