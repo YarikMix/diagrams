@@ -1,30 +1,30 @@
 {
   "entities": [
-    { "tag": "Group", "id": "github", "x": 0, "y": 0, "width": 1200, "height": 1540, "isContainer": true, "title": { "text": "GitHub", "icon": "github" } },
+    { "tag": "Group", "id": "github", "color": "purple", "x": 0, "y": 0, "width": 1200, "height": 1540, "isContainer": true, "title": { "text": "GitHub", "icon": "github" } },
 
-    { "tag": "Group", "id": "repo-react", "x": 20, "y": 40, "width": 840, "height": 180, "containerId": "github", "isContainer": true, "title": { "text": "React repo", "icon": "react" } },
-    { "tag": "Group", "id": "react-release", "x": 40, "y": 80, "width": 800, "height": 120, "containerId": "repo-react", "isContainer": true, "title": { "text": "React release" } },
+    { "tag": "Group", "id": "repo-react", "color": "purple", "styleMode": "plain", "x": 20, "y": 40, "width": 840, "height": 180, "containerId": "github", "isContainer": true, "title": { "text": "React repo", "icon": "react" } },
+    { "tag": "Group", "id": "react-release", "color": "purple", "styleMode": "plain", "x": 40, "y": 80, "width": 800, "height": 120, "containerId": "repo-react", "isContainer": true, "title": { "text": "React release" } },
     { "tag": "Activity", "id": "react-install", "x": 60, "y": 120, "width": 120, "height": 60, "containerId": "react-release", "texts": [{ "text": "Install deps" }] },
     { "tag": "Activity", "id": "react-lint", "x": 220, "y": 120, "width": 120, "height": 60, "containerId": "react-release", "texts": [{ "text": "Lint" }] },
     { "tag": "Activity", "id": "react-build", "x": 380, "y": 120, "width": 120, "height": 60, "containerId": "react-release", "texts": [{ "text": "Build" }] },
     { "tag": "Activity", "id": "react-deploy-npm", "x": 540, "y": 120, "width": 120, "height": 60, "containerId": "react-release", "texts": [{ "text": "Deploy to NPM" }] },
     { "tag": "Activity", "id": "react-tg", "x": 700, "y": 120, "width": 120, "height": 60, "containerId": "react-release", "texts": [{ "text": "Send to tg" }] },
 
-    { "tag": "Group", "id": "repo-uikit", "x": 20, "y": 240, "width": 840, "height": 320, "containerId": "github", "isContainer": true, "title": { "text": "UI Kit repo", "icon": "package" } },
-    { "tag": "Group", "id": "uikit-release", "x": 40, "y": 280, "width": 800, "height": 120, "containerId": "repo-uikit", "isContainer": true, "title": { "text": "UI Kit release" } },
+    { "tag": "Group", "id": "repo-uikit", "color": "purple", "styleMode": "plain", "x": 20, "y": 240, "width": 840, "height": 320, "containerId": "github", "isContainer": true, "title": { "text": "UI Kit repo", "icon": "package" } },
+    { "tag": "Group", "id": "uikit-release", "color": "purple", "styleMode": "plain", "x": 40, "y": 280, "width": 800, "height": 120, "containerId": "repo-uikit", "isContainer": true, "title": { "text": "UI Kit release" } },
     { "tag": "Activity", "id": "uikit-install", "x": 60, "y": 320, "width": 120, "height": 60, "containerId": "uikit-release", "texts": [{ "text": "Install deps" }] },
     { "tag": "Activity", "id": "uikit-lint", "x": 220, "y": 320, "width": 120, "height": 60, "containerId": "uikit-release", "texts": [{ "text": "Lint" }] },
     { "tag": "Activity", "id": "uikit-build", "x": 380, "y": 320, "width": 120, "height": 60, "containerId": "uikit-release", "texts": [{ "text": "Build" }] },
     { "tag": "Activity", "id": "uikit-deploy-npm", "x": 540, "y": 320, "width": 120, "height": 60, "containerId": "uikit-release", "texts": [{ "text": "Deploy to NPM" }] },
     { "tag": "Activity", "id": "uikit-tg", "x": 700, "y": 320, "width": 120, "height": 60, "containerId": "uikit-release", "texts": [{ "text": "Send to tg" }] },
-    { "tag": "Group", "id": "sb-deploy", "x": 40, "y": 420, "width": 640, "height": 120, "containerId": "repo-uikit", "isContainer": true, "title": { "text": "Storybook deploy" } },
+    { "tag": "Group", "id": "sb-deploy", "color": "purple", "styleMode": "plain", "x": 40, "y": 420, "width": 640, "height": 120, "containerId": "repo-uikit", "isContainer": true, "title": { "text": "Storybook deploy" } },
     { "tag": "Activity", "id": "sb-install", "x": 60, "y": 460, "width": 120, "height": 60, "containerId": "sb-deploy", "texts": [{ "text": "Install deps" }] },
     { "tag": "Activity", "id": "sb-build", "x": 220, "y": 460, "width": 120, "height": 60, "containerId": "sb-deploy", "texts": [{ "text": "Build" }] },
     { "tag": "Activity", "id": "sb-deploy-pages", "x": 380, "y": 460, "width": 120, "height": 60, "containerId": "sb-deploy", "texts": [{ "text": "Deploy to Pages" }] },
     { "tag": "Activity", "id": "sb-tg", "x": 540, "y": 460, "width": 120, "height": 60, "containerId": "sb-deploy", "texts": [{ "text": "Send to tg" }] },
 
-    { "tag": "Group", "id": "repo-frontend", "x": 20, "y": 580, "width": 1160, "height": 180, "containerId": "github", "isContainer": true, "title": { "text": "Frontend monorepo (client + BFF)", "icon": "react" } },
-    { "tag": "Group", "id": "fe-ci", "x": 40, "y": 620, "width": 1120, "height": 120, "containerId": "repo-frontend", "isContainer": true, "title": { "text": "CI" } },
+    { "tag": "Group", "id": "repo-frontend", "color": "purple", "styleMode": "plain", "x": 20, "y": 580, "width": 1160, "height": 180, "containerId": "github", "isContainer": true, "title": { "text": "Frontend monorepo (client + BFF)", "icon": "react" } },
+    { "tag": "Group", "id": "fe-ci", "color": "purple", "styleMode": "plain", "x": 40, "y": 620, "width": 1120, "height": 120, "containerId": "repo-frontend", "isContainer": true, "title": { "text": "CI" } },
     { "tag": "Activity", "id": "fe-affected", "x": 60, "y": 660, "width": 120, "height": 60, "containerId": "fe-ci", "texts": [{ "text": "detect affected" }] },
     { "tag": "Activity", "id": "fe-install", "x": 220, "y": 660, "width": 120, "height": 60, "containerId": "fe-ci", "texts": [{ "text": "Install deps" }] },
     { "tag": "Activity", "id": "fe-lint", "x": 380, "y": 660, "width": 120, "height": 60, "containerId": "fe-ci", "texts": [{ "text": "Lint" }] },
@@ -33,23 +33,23 @@
     { "tag": "Activity", "id": "fe-bundle-stats", "x": 860, "y": 660, "width": 120, "height": 60, "containerId": "fe-ci", "texts": [{ "text": "Send bundle stats" }] },
     { "tag": "Activity", "id": "fe-tg", "x": 1020, "y": 660, "width": 120, "height": 60, "containerId": "fe-ci", "texts": [{ "text": "Send to tg" }] },
 
-    { "tag": "Group", "id": "repo-backend", "x": 20, "y": 780, "width": 840, "height": 180, "containerId": "github", "isContainer": true, "title": { "text": "Backend repo", "icon": "go" } },
-    { "tag": "Group", "id": "be-ci", "x": 40, "y": 820, "width": 800, "height": 120, "containerId": "repo-backend", "isContainer": true, "title": { "text": "CI" } },
+    { "tag": "Group", "id": "repo-backend", "color": "purple", "styleMode": "plain", "x": 20, "y": 780, "width": 840, "height": 180, "containerId": "github", "isContainer": true, "title": { "text": "Backend repo", "icon": "go" } },
+    { "tag": "Group", "id": "be-ci", "color": "purple", "styleMode": "plain", "x": 40, "y": 820, "width": 800, "height": 120, "containerId": "repo-backend", "isContainer": true, "title": { "text": "CI" } },
     { "tag": "Activity", "id": "be-build", "x": 60, "y": 860, "width": 120, "height": 60, "containerId": "be-ci", "texts": [{ "text": "Build" }] },
     { "tag": "Activity", "id": "be-units", "x": 220, "y": 860, "width": 120, "height": 60, "containerId": "be-ci", "texts": [{ "text": "Units" }] },
     { "tag": "Activity", "id": "be-lint", "x": 380, "y": 860, "width": 120, "height": 60, "containerId": "be-ci", "texts": [{ "text": "Lint" }] },
     { "tag": "Activity", "id": "be-build-image", "x": 540, "y": 860, "width": 120, "height": 60, "containerId": "be-ci", "texts": [{ "text": "Build image" }] },
     { "tag": "Activity", "id": "be-tg", "x": 700, "y": 860, "width": 120, "height": 60, "containerId": "be-ci", "texts": [{ "text": "Send to tg" }] },
 
-    { "tag": "Group", "id": "repo-static", "x": 20, "y": 980, "width": 360, "height": 180, "containerId": "github", "isContainer": true, "title": { "text": "Static repo", "icon": "box" } },
-    { "tag": "Group", "id": "static-pipeline", "x": 40, "y": 1020, "width": 320, "height": 120, "containerId": "repo-static", "isContainer": true, "title": { "text": "Static" } },
+    { "tag": "Group", "id": "repo-static", "color": "purple", "styleMode": "plain", "x": 20, "y": 980, "width": 360, "height": 180, "containerId": "github", "isContainer": true, "title": { "text": "Static repo", "icon": "box" } },
+    { "tag": "Group", "id": "static-pipeline", "color": "purple", "styleMode": "plain", "x": 40, "y": 1020, "width": 320, "height": 120, "containerId": "repo-static", "isContainer": true, "title": { "text": "Static" } },
     { "tag": "Activity", "id": "static-deploy-s3", "x": 60, "y": 1060, "width": 120, "height": 60, "containerId": "static-pipeline", "texts": [{ "text": "Deploy to s3" }] },
     { "tag": "Activity", "id": "static-tg", "x": 220, "y": 1060, "width": 120, "height": 60, "containerId": "static-pipeline", "texts": [{ "text": "Send to tg" }] },
 
-    { "tag": "Group", "id": "repo-e2e", "x": 20, "y": 1180, "width": 200, "height": 160, "containerId": "github", "isContainer": true, "title": { "text": "E2E repo", "icon": "playwright" } },
+    { "tag": "Group", "id": "repo-e2e", "color": "purple", "styleMode": "plain", "x": 20, "y": 1180, "width": 200, "height": 160, "containerId": "github", "isContainer": true, "title": { "text": "E2E repo", "icon": "playwright" } },
     { "tag": "Icon", "id": "e2e-tests", "x": 40, "y": 1220, "containerId": "repo-e2e", "icon": "playwright", "texts": [{ "text": "Playwright tests" }] },
 
-    { "tag": "Group", "id": "repo-deployments", "x": 20, "y": 1360, "width": 880, "height": 160, "containerId": "github", "isContainer": true, "title": { "text": "Deployments repo", "icon": "pulumi" } },
+    { "tag": "Group", "id": "repo-deployments", "color": "purple", "styleMode": "plain", "x": 20, "y": 1360, "width": 880, "height": 160, "containerId": "github", "isContainer": true, "title": { "text": "Deployments repo", "icon": "pulumi" } },
     { "tag": "Icon", "id": "dep-pulumi", "x": 40, "y": 1400, "containerId": "repo-deployments", "icon": "pulumi", "texts": [{ "text": "Pulumi configs" }] },
     { "tag": "Icon", "id": "dep-caddy", "x": 180, "y": 1400, "containerId": "repo-deployments", "icon": "server", "texts": [{ "text": "caddy.conf" }] },
     { "tag": "Icon", "id": "dep-compose", "x": 320, "y": 1400, "containerId": "repo-deployments", "icon": "docker", "texts": [{ "text": "docker-compose.yml" }] },
@@ -57,16 +57,17 @@
     { "tag": "Icon", "id": "dep-ansible", "x": 600, "y": 1400, "containerId": "repo-deployments", "icon": "ansible", "texts": [{ "text": "ansible roles / playbooks" }] },
     { "tag": "Icon", "id": "dep-vault", "x": 740, "y": 1400, "containerId": "repo-deployments", "icon": "ansible", "texts": [{ "text": "ansible vault" }] },
 
-    { "tag": "Group", "id": "npm-registry", "x": 1300, "y": 40, "width": 280, "height": 160, "isContainer": true, "title": { "text": "NPM Registry", "icon": "npm" } },
+    { "tag": "Group", "id": "npm-registry", "color": "green", "x": 1300, "y": 40, "width": 280, "height": 160, "isContainer": true, "title": { "text": "NPM Registry", "icon": "npm" } },
     { "tag": "Icon", "id": "npm-react", "x": 1320, "y": 80, "containerId": "npm-registry", "icon": "npm", "texts": [{ "text": "@my/react" }] },
     { "tag": "Icon", "id": "npm-uikit", "x": 1460, "y": 80, "containerId": "npm-registry", "icon": "npm", "texts": [{ "text": "@my/ui-kit" }] },
     { "tag": "Icon", "id": "pages-storybook", "x": 1320, "y": 440, "icon": "storybook", "texts": [{ "text": "Storybook (GitHub Pages)" }] },
     { "tag": "Icon", "id": "relative-ci", "x": 1320, "y": 640, "icon": "monitor", "texts": [{ "text": "Relative CI" }] },
-    { "tag": "Group", "id": "docker-registry", "x": 1300, "y": 800, "width": 280, "height": 160, "isContainer": true, "title": { "text": "Docker Registry", "icon": "docker" } },
+    { "tag": "Group", "id": "docker-registry", "color": "green", "x": 1300, "y": 800, "width": 280, "height": 160, "isContainer": true, "title": { "text": "Docker Registry", "icon": "docker" } },
     { "tag": "Icon", "id": "reg-bff", "x": 1320, "y": 840, "containerId": "docker-registry", "icon": "docker", "texts": [{ "text": "bff image" }] },
     { "tag": "Icon", "id": "reg-backend", "x": 1460, "y": 840, "containerId": "docker-registry", "icon": "docker", "texts": [{ "text": "backend image" }] },
     { "tag": "Icon", "id": "s3", "x": 1320, "y": 1040, "icon": "database", "texts": [{ "text": "S3" }] },
-    { "tag": "Icon", "id": "telegram", "x": 1320, "y": 1300, "icon": "telegram", "texts": [{ "text": "Telegram" }] }
+    { "tag": "Icon", "id": "telegram", "x": 1320, "y": 1300, "icon": "telegram", "texts": [{ "text": "Telegram" }] },
+    { "tag": "Legend", "id": "legend", "x": 1640, "y": 0, "width": 340, "entries": [{ "text": "GitHub", "color": "#c43dcf" }, { "text": "Внешние сервисы", "color": "#30a050" }, { "text": "Пайплайн и внешние системы, пунктир", "color": "#3a3a3a" }, { "text": "Алерты и уведомления, точки", "color": "#bd413a" }, { "text": "Прочие связи", "color": "#1c1c1c" }] }
   ],
   "connections": [
     { "tag": "Relationship", "from": "react-install", "to": "react-lint" },
@@ -96,14 +97,14 @@
 
     { "tag": "Relationship", "from": "static-deploy-s3", "to": "static-tg" },
 
-    { "tag": "Relationship", "from": "react-deploy-npm", "to": "npm-react" },
-    { "tag": "Relationship", "from": "uikit-deploy-npm", "to": "npm-uikit" },
-    { "tag": "Relationship", "from": "npm-react", "to": "uikit-install", "label": "@my/react" },
-    { "tag": "Relationship", "from": "npm-react", "to": "sb-install", "label": "@my/react" },
-    { "tag": "Relationship", "from": "sb-deploy-pages", "to": "pages-storybook" },
-    { "tag": "Relationship", "from": "fe-bundle-stats", "to": "relative-ci" },
-    { "tag": "Relationship", "from": "be-build-image", "to": "reg-backend" },
-    { "tag": "Relationship", "from": "static-deploy-s3", "to": "s3" },
-    { "tag": "Relationship", "from": "github", "to": "telegram", "label": "Send to tg" }
+    { "tag": "Relationship", "from": "react-deploy-npm", "to": "npm-react", "color": "black", "lineStyle": "dashed" },
+    { "tag": "Relationship", "from": "uikit-deploy-npm", "to": "npm-uikit", "color": "black", "lineStyle": "dashed" },
+    { "tag": "Relationship", "from": "npm-react", "to": "uikit-install", "label": "@my/react", "color": "black", "lineStyle": "dashed" },
+    { "tag": "Relationship", "from": "npm-react", "to": "sb-install", "label": "@my/react", "color": "black", "lineStyle": "dashed" },
+    { "tag": "Relationship", "from": "sb-deploy-pages", "to": "pages-storybook", "color": "black", "lineStyle": "dashed" },
+    { "tag": "Relationship", "from": "fe-bundle-stats", "to": "relative-ci", "color": "black", "lineStyle": "dashed" },
+    { "tag": "Relationship", "from": "be-build-image", "to": "reg-backend", "color": "black", "lineStyle": "dashed" },
+    { "tag": "Relationship", "from": "static-deploy-s3", "to": "s3", "color": "black", "lineStyle": "dashed" },
+    { "tag": "Relationship", "from": "github", "to": "telegram", "label": "Send to tg", "color": "red", "lineStyle": "dotted" }
   ]
 }

@@ -9,7 +9,7 @@
     "check": "bun scripts/check-colors.mjs",
     "render": "bun scripts/eraser.mjs render -f html && bun scripts/eraser.mjs render -f png",
     "index": "bun scripts/build-index.mjs",
-    "build": "bun run validate && bun run render && bun run index",
+    "build": "bun run validate && bun run check && bun run render && bun run index",
     "icons": "bun scripts/fetch-icons.mjs"
   },
   "devDependencies": {
