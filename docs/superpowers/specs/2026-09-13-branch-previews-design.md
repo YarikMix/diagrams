@@ -151,9 +151,12 @@ jobs:
 4. Для каждой ветки по алфавиту:
    1. `git worktree add --detach <tmp>/<slug> <sha>`, где `<tmp>` это
       `mkdtempSync(join(tmpdir(), "diagrams-previews-"))`.
-   2. В каталоге ветки `bun install --frozen-lockfile`, затем `bun run build`.
-      У каждой команды `timeout` 5 минут в `spawnSync`, `stdio: "inherit"`,
-      переменные окружения наследуются.
+   2. В каталоге ветки `bun install --frozen-lockfile`. Затем, если в
+      основном каталоге есть `.eraser/icons`, он копируется в
+      `.eraser/icons` ветки, чтобы ветка не качала заново те же иконки.
+      Затем `bun run build`. У `bun install` и `bun run build` `timeout`
+      5 минут в `spawnSync`, `stdio: "inherit"`, переменные окружения
+      наследуются.
    3. Успех, если обе команды вышли с кодом 0 и есть `dist/index.html`.
       Тогда `dist/` ветки копируется в `dist/branches/<slug>/` основного
       каталога.
@@ -173,7 +176,12 @@ jobs:
   результат даёт `branch`.
 - `assignSlugs(branches: { name: string, sha: string }[]): { name, sha, slug }[]`:
   сортирует по `name`; если slug уже занят, второй ветке даётся
-  `<slug>-<первые 7 символов sha>`.
+  `<slug>-<первые 7 символов sha>`. Slug `index.html` считается занятым
+  заранее: там лежит список превью.
+- `parseBranches(output: string): { name, sha }[]`: разбирает вывод
+  `git for-each-ref` из §4.1, отбрасывает `HEAD` и `main`.
+- `renderSummary(entries): string`: markdown для `GITHUB_STEP_SUMMARY`,
+  строка на ветку с путём превью или шагом, на котором она упала.
 - `escapeHtml(text: string): string`: `&`, `<`, `>`, `"`, `'`.
 - `renderPreviewsIndex(entries: { name, slug, sha, status: "ok" | "failed", failedStep?: string }[]): string`:
   один статичный HTML со встроенным CSS в стиле `build-index.mjs`, без
@@ -193,9 +201,11 @@ jobs:
 - Адрес: `https://yarikmix.github.io/diagrams/branches/`.
 - Превью ветки: `https://yarikmix.github.io/diagrams/branches/<slug>/`, внутри
   тот же `index.html` со ссылками на HTML и PNG схем этой ветки.
-- Ветка, собранная скриптами до миграции на bun (нет `bun.lock`), получает
-  статус `failed` на шаге `bun install`. Поддержки npm нет, слитые ветки
-  удаляются.
+- Ветка из эпохи npm с `package-lock.json` собирается: проверено
+  2026-09-13, `bun install --frozen-lockfile` переносит lockfile, а её
+  `bun run build` вызывает npm-скрипты, npm на раннере есть. Ветка без
+  скрипта `build` получает `failed` на шаге `bun run build`. Отдельной
+  поддержки npm нет, слитые ветки удаляются.
 
 ## 6. Тесты
 
@@ -206,7 +216,11 @@ jobs:
   - `assignSlugs`: ветки `a/b` и `a-b` с разными sha. После сортировки по
     имени первой идёт `a-b` (код `-` меньше кода `/`), она получает slug
     `a-b`; ветка `a/b` получает `a-b-<первые 7 символов её sha>`.
+  - `assignSlugs`: ветка `index.html` получает `index.html-<sha7>`.
+  - `parseBranches`: `HEAD` и `main` отброшены, имя со слешем сохранено,
+    строки с `\r\n` разбираются.
   - `escapeHtml` на всех пяти символах.
+  - `renderSummary`: путь превью для `ok`, шаг для `failed`.
   - `renderPreviewsIndex`: ссылка `feature-x/` для `ok`; текст
     `не собралась: bun install` для `failed`; имя `a<b>` выводится как
     `a&lt;b&gt;`; пустой список даёт `Других веток нет.`; нет `<script>`
@@ -232,11 +246,12 @@ jobs:
 До слияния:
 
 - `bun run test` зелёный.
-- `bun run site` на Windows: `dist/index.html` содержит ссылку
-  `branches/`; `dist/branches/index.html` есть и содержит
-  `feature/eraser-pipeline` со статусом `не собралась: bun install`;
-  выход 0; во временной папке не осталось worktree (`git worktree list`
-  показывает только основной и уже существующие).
+- `bun run site` на Windows против временного bare-репозитория в роли
+  `origin` с ветками текущей работы, веткой на коммите эпохи npm и веткой
+  без `package.json`: выход 0; `dist/index.html` содержит ссылку
+  `branches/`; в `dist/branches/index.html` первые две ветки со ссылками,
+  третья `не собралась: bun run build`; `git worktree list` показывает
+  только основной каталог.
 - В `dist/**/*.html` нет `file://` и внешних `src`, `<link>`, `@import`, `url()`.
 - CI в PR зелёный.
 
@@ -251,8 +266,8 @@ jobs:
 
 - Поддержка веток на npm.
 - Превью для PR из форков.
-- Общий кэш иконок для веток: каждая ветка скачивает иконки в свой
-  `.eraser/icons`.
+- Общий кэш иконок с записью обратно: ветка получает копию кэша основной
+  сборки, новые иконки ветки в него не возвращаются.
 - Отдельные домены или окружения на ветку.
 
 ## 10. Риски
@@ -266,4 +281,7 @@ jobs:
 - **Лимит в 45 минут.** При девяти и более ветках, упирающихся в пятиминутный
   лимит, job упадёт; тогда лимит поднимается или ветки чистятся.
 - **Сбой GCS или сети при сборке ветки** даёт `failed` у ветки, а не падение
-  деплоя.
+  деплоя. Проверено 2026-09-13: сборка ветки с пустым кэшем однажды упала с
+  `E_UNKNOWN_ICON` на существующей иконке `monitor`, повтор прошёл. Копия
+  кэша основной сборки уменьшает число загрузок; сбой на `main` по-прежнему
+  роняет деплой.
