@@ -17,13 +17,13 @@
     { "tag": "Icon", "id": "vk-voice", "x": 960, "y": 240, "containerId": "vk-cloud", "icon": "cloud", "texts": [{ "text": "VK Cloud Voice" }] },
     { "tag": "Icon", "id": "app-tracer", "x": 1100, "y": 240, "containerId": "vk-cloud", "icon": "monitor", "texts": [{ "text": "App Tracer" }] },
 
+    { "tag": "Icon", "id": "storybook-pages", "x": 160, "y": 440, "icon": "storybook", "texts": [{ "text": "Storybook (Pages)" }] },
     { "tag": "Icon", "id": "telegram", "x": 300, "y": 440, "icon": "telegram", "texts": [{ "text": "Telegram" }] },
-    { "tag": "Icon", "id": "storybook-pages", "x": 440, "y": 440, "icon": "storybook", "texts": [{ "text": "Storybook (Pages)" }] },
     { "tag": "Icon", "id": "allure", "x": 580, "y": 440, "icon": "monitor", "texts": [{ "text": "Allure TestOps" }] },
-    { "tag": "Icon", "id": "posthog", "x": 720, "y": 440, "icon": "posthog", "texts": [{ "text": "PostHog" }] },
     { "tag": "Icon", "id": "one-signal", "x": 860, "y": 440, "icon": "bell", "texts": [{ "text": "One Signal" }] },
     { "tag": "Icon", "id": "relative-ci", "x": 1000, "y": 440, "icon": "monitor", "texts": [{ "text": "Relative CI" }] },
-    { "tag": "Icon", "id": "cloudflare", "x": 1140, "y": 440, "icon": "cloudflare", "texts": [{ "text": "Cloudflare Turnstile" }] }
+    { "tag": "Icon", "id": "cloudflare", "x": 1140, "y": 440, "icon": "cloudflare", "texts": [{ "text": "Cloudflare Turnstile" }] },
+    { "tag": "Icon", "id": "posthog", "x": 1280, "y": 440, "icon": "posthog", "texts": [{ "text": "PostHog" }] }
   ],
   "connections": [
     { "tag": "Relationship", "from": "client", "to": "caddy-vps1", "label": "https://site.ru, /api" },
