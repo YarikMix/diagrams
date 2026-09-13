@@ -113,6 +113,11 @@
   `node not found on PATH: the eraser-diagrams renderer needs Node >= 22.12`
   и выход с кодом 2. Любая другая ошибка запуска печатает
   `result.error.message` и выходит с кодом 1, как сейчас.
+- Дополнено по финальному ревью: перед запуском CLI обёртка вызывает
+  `node -e` и проверяет `process.versions.bun`. `bun run` без Node кладёт
+  в PATH свой shim `node`, и без этой проверки рендер запустился бы под
+  bun и завис. Shim и отсутствие node дают выход 2 с сообщением, прочие
+  сбои пробы выход 1.
 - Тест в `scripts/eraser.test.mjs`:
   `rendererCommand("render", ["diagrams/a.json"], ["-f", "html"])` даёт
   `cmd === "node"`, `args[0]` равен `cliEntry()`, остаток равен
@@ -135,6 +140,10 @@
 5. `bun install --frozen-lockfile`
 6. `bun run test`
 7. `bun run build` с `CHROMIUM_PATH=/usr/bin/google-chrome`, без изменений
+
+Дополнено по финальному ревью: у job `build` в обоих workflow
+`timeout-minutes: 15`, чтобы зависание рендера не держало раннер до
+шестичасового лимита.
 
 Дальше без изменений: `upload-artifact` в `ci.yml`, `upload-pages-artifact`
 и job `deploy` в `pages.yml`, права токена, concurrency.

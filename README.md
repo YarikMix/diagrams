@@ -22,6 +22,9 @@
 тесты. Рендерер eraser-diagrams запускается под Node: под bun он зависает
 на запуске Chrome.
 
+bun ставится с https://bun.sh. Без настоящего Node в PATH `bun run render`
+и `bun run build` останавливаются с ошибкой, а не зависают.
+
 ```bash
 bun install
 bun run validate   # схема и иконки, без браузера
