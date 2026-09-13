@@ -1,7 +1,8 @@
 # Архитектурные схемы как код: eraser-diagrams + Claude Code + GitHub Pages
 
 Дата: 2026-09-12. Репозиторий: `YarikMix/diagrams` (public, ветка `main`).
-Статус: на ревью. После утверждения план реализации пишется скиллом `writing-plans`.
+Статус: реализовано, PR #1. Дополнено спекой `docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md`:
+миграция на bun (§2, §4, §6, §7) и цветовая конвенция (§5.6, §6).
 
 ## 1. Цель
 
@@ -14,6 +15,9 @@ GitHub Pages, чтобы схему можно было открыть по сс
 никакого MCP-сервера. Агент + CLI + GitHub Actions.
 
 ## 2. Проверенные факты об инструменте
+
+> Дополнено: `docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md` §2. Рендерер по-прежнему требует Node,
+> остальной тулинг на bun.
 
 Всё ниже проверено вживую 2026-09-12 на `@eraserlabs/diagrams-cli@0.1.0`,
 Node 24, Windows + Chrome. Реализующий агент должен опираться на эти факты,
@@ -122,6 +126,9 @@ diagrams/
 Одна диаграмма = один файл в `diagrams/`. Имя файла = имя страницы на Pages.
 
 ## 4. Конфигурация и скрипты
+
+> Изменено: скрипты и lockfile на bun, команда `check`, см. `docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md`
+> §3.1 и §4.5. Таблица ниже описывает исходное состояние.
 
 `eraser-diagrams.config.json`:
 
@@ -278,10 +285,12 @@ Glob `diagrams/*.json` в Windows-шелле не раскроется сам, �
 - Подписи коротко, без URL внутри `texts`, URL только в `label` соединения.
 - Хостнеймы `site.ru` и подобные плейсхолдеры допустимы. Реальные IP,
   токены, внутренние адреса не допускаются, репозиторий публичный.
-- Никаких `x-`-полей, цветов и стилей сверх необходимого, пока схема
-  читаема по умолчанию.
+- Никаких `x-`-полей и стилей сверх необходимого. Цвета только по конвенции
+  `docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md` §4.
 
 ## 6. Скилл для Claude Code
+
+> Изменено: команды на bun и раздел «Цвета», см. `docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md` §3.5 и §4.8.
 
 `.claude/skills/eraser-diagrams/SKILL.md` подхватывается Claude Code в этом
 репозитории автоматически. Содержание:
@@ -299,6 +308,9 @@ Glob `diagrams/*.json` в Windows-шелле не раскроется сам, �
 7. Правило: одна диаграмма на файл, не сливать схемы в одну.
 
 ## 7. CI/CD
+
+> Изменено: `oven-sh/setup-bun@v2`, `bun install --frozen-lockfile`, `bun run build`,
+> см. `docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md` §3.4.
 
 ### 7.1 `ci.yml`
 

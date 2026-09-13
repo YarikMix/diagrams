@@ -1,6 +1,6 @@
 // Собирает dist/index.html: заголовок, ссылки на <name>.html и <name>.png,
 // превью PNG. Один статичный файл, CSS встроен, зависимостей нет.
-// Использование: node scripts/build-index.mjs
+// Использование: bun scripts/build-index.mjs
 import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,7 +12,7 @@ export function diagramNames(dir = "diagrams") {
     .map((name) => name.slice(0, -".json".length));
 }
 
-export function renderIndex(names) {
+export function renderIndex(names, options = {}) {
   const cards = names
     .map(
       (name) => `    <section class="card">
@@ -22,6 +22,9 @@ export function renderIndex(names) {
     </section>`,
     )
     .join("\n");
+  const previews = options.previewsHref
+    ? `\n  <p><a href="${options.previewsHref}">Превью веток</a></p>`
+    : "";
   return `<!doctype html>
 <html lang="ru">
 <head>
@@ -38,7 +41,7 @@ export function renderIndex(names) {
 </head>
 <body>
   <h1>Диаграммы</h1>
-${cards}
+${cards}${previews}
 </body>
 </html>
 `;
