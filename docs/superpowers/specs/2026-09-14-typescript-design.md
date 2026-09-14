@@ -106,16 +106,19 @@ bun. Поведение, коды выхода и тексты сообщени�
 
 | # | Модуль | Изменения |
 | --- | --- | --- |
-| 1 | `diagram.ts` (новый), `colors.ts` | типы §4; `flowOf(connection: Relationship, entitiesById: Record<string, Entity>)`, `expectedLegend(doc: DiagramDoc)`, `indexById(doc: DiagramDoc)`; тест палитры: динамический импорт `palette.js` движка, тест `DEFAULT_EDGE_HEX` читает `normalizers.js` через `Bun.file().text()` |
+| 1 | `diagram.ts` (новый), `colors.ts` | типы §4; функции принимают минимальные структурные типы, которым `DiagramDoc` тоже подходит: `flowOf(connection: Endpoints, entitiesById: Readonly<Record<string, TaggedNode>>): FlowKey`, `expectedLegend(doc: LegendSource): LegendEntry[]`, `indexById<T extends { id: string }>(doc: { entities: readonly T[] }): Record<string, T>`; `FLOW_BY_KEY: Record<FlowKey, Flow>` экспортируется из `colors.ts`; тест палитры: динамический импорт `palette.js` движка, тест `DEFAULT_EDGE_HEX` читает `normalizers.js` через `Bun.file().text()` |
 | 2 | `check-colors.ts` | список `Bun.Glob("*.json").scanSync("diagrams")` по алфавиту; `Bun.file().json()`; `Bun.deepEquals` для легенды; `main()` асинхронная, `process.exit(await main())` |
 | 3 | `build-index.ts` | `diagramNames(dir)` через `Bun.Glob`; запись `Bun.write("dist/index.html", ...)` без `mkdirSync` |
 | 4 | `fetch-icons.ts` | `fetch` без изменений; `Bun.write("icons.txt", ...)`; тип подменяемого `fetch`: `(url: string) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>` |
 | 5 | `eraser.ts` | `listDiagrams(dir)` через `Bun.Glob` с `join(dir, name)`; `cliEntry(): Promise<string>` через `Bun.resolveSync` и `Bun.file().json()`; запуск рендерера и проба node через `Bun.spawnSync`; `nodeProbeVerdict` принимает `{ error: { code?: string; message: string } } \| { exitCode: number \| null; stdout: string }` и возвращает `"ok" \| "missing" \| "bun" \| "failed"` по прежним правилам |
 | 6 | `build-site.ts` | `run()` на `Bun.spawnSync` с `timeout`, `killSignal: "SIGKILL"`, `stdio: ["inherit", "inherit", "inherit"]`, `cwd`; исход `"timeout"` по `exitedDueToTimeout`, `"failed"` по исключению или ненулевому коду; вывод `git rev-parse` и `git for-each-ref` из `stdout`; индексы через `Bun.write`; `cpSync`, `rmSync`, `mkdtempSync`, `existsSync`, `appendFileSync` остаются на `node:fs` |
 
-Экспортируемые имена, сигнатуры (кроме асинхронной `cliEntry` и входа
-`nodeProbeVerdict`), тексты сообщений, коды выхода и порядок шагов
-`build-site` не меняются.
+Экспортируемые имена, сигнатуры (кроме асинхронных `cliEntry` и
+`rendererCommand`, входа `nodeProbeVerdict` и новых экспортов `FLOW_BY_KEY`
+и `spawnError`), тексты сообщений, коды выхода и порядок шагов
+`build-site` не меняются. Во время перевода `.mjs`, которые импортируют уже
+переведённый модуль, импортируют его `.ts`-версию, чтобы каждый шаг оставлял
+сборку рабочей.
 
 ## 6. Тесты
 
