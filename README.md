@@ -34,6 +34,7 @@ bun run build      # validate + check + render + dist/index.html
 bun run site       # build + превью всех веток origin в dist/branches/
 bun run icons      # обновить icons.txt из каталога иконок Eraser
 bun run test
+bun run typecheck  # строгая проверка типов скриптов
 ```
 
 ## Как править
