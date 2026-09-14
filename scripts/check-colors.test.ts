@@ -1,8 +1,8 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import { checkDiagram } from "./check-colors.mjs";
+import { expect, test } from "bun:test";
+import { checkDiagram } from "./check-colors.ts";
+import type { DiagramDoc, Entity, LegendEntity, Relationship } from "./diagram.ts";
 
-function validDoc() {
+function validDoc(): DiagramDoc {
   return {
     entities: [
       { tag: "Group", id: "ours", x: 0, y: 0, width: 400, height: 300, isContainer: true, color: "blue", title: { text: "Ours" } },
@@ -32,35 +32,51 @@ function validDoc() {
   };
 }
 
-const entity = (doc, id) => doc.entities.find((e) => e.id === id);
+function entity(doc: DiagramDoc, id: string): Entity {
+  const found = doc.entities.find((e) => e.id === id);
+  if (!found) throw new Error(`no entity ${id}`);
+  return found;
+}
+
+function legendOf(doc: DiagramDoc): LegendEntity {
+  const found = doc.entities.find((e): e is LegendEntity => e.tag === "Legend");
+  if (!found) throw new Error("no legend");
+  return found;
+}
+
+function connection(doc: DiagramDoc, index: number): Relationship {
+  const found = doc.connections[index];
+  if (!found) throw new Error(`no connection ${index}`);
+  return found;
+}
 
 test("a diagram that follows the convention has no problems", () => {
-  assert.deepEqual(checkDiagram(validDoc()), []);
+  expect(checkDiagram(validDoc())).toEqual([]);
 });
 
-const violations = [
+const violations: [name: string, id: string, mutate: (d: DiagramDoc) => void][] = [
   ["top-level group without a zone color", "ours", (d) => { delete entity(d, "ours").color; }],
   ["top-level group with styleMode", "ours", (d) => { entity(d, "ours").styleMode = "plain"; }],
   ["nested group with a different color", "vps", (d) => { entity(d, "vps").color = "green"; }],
   ["nested group without styleMode plain", "vps", (d) => { delete entity(d, "vps").styleMode; }],
   ["icon with a color", "api", (d) => { entity(d, "api").color = "red"; }],
-  ["user traffic arrow without color", "client->api", (d) => { delete d.connections[0].color; }],
-  ["other arrow with a lineStyle", "api->db", (d) => { d.connections[1].lineStyle = "dashed"; }],
+  ["user traffic arrow without color", "client->api", (d) => { delete connection(d, 0).color; }],
+  ["other arrow with a lineStyle", "api->db", (d) => { connection(d, 1).lineStyle = "dashed"; }],
   ["no legend", "legend", (d) => { d.entities = d.entities.filter((e) => e.tag !== "Legend"); }],
-  ["two legends", "legend", (d) => { d.entities.push({ ...entity(d, "legend"), id: "legend-2" }); }],
-  ["legend with a wrong id", "key", (d) => { entity(d, "legend").id = "key"; }],
-  ["legend with a color", "legend", (d) => { entity(d, "legend").color = "blue"; }],
-  ["legend entries in a wrong order", "legend", (d) => { entity(d, "legend").entries.reverse(); }],
-  ["legend with containerId", "legend", (d) => { entity(d, "legend").containerId = "ours"; }],
-  ["legend with styleMode", "legend", (d) => { entity(d, "legend").styleMode = "plain"; }],
+  ["two legends", "legend", (d) => { d.entities.push({ ...legendOf(d), id: "legend-2" }); }],
+  ["legend with a wrong id", "key", (d) => { legendOf(d).id = "key"; }],
+  ["legend with a color", "legend", (d) => { legendOf(d).color = "blue"; }],
+  ["legend entries in a wrong order", "legend", (d) => { legendOf(d).entries.reverse(); }],
+  ["legend with containerId", "legend", (d) => { legendOf(d).containerId = "ours"; }],
+  ["legend with styleMode", "legend", (d) => { legendOf(d).styleMode = "plain"; }],
   ["Telegram icon with another id", "tg", (d) => {
     entity(d, "telegram").id = "tg";
-    d.connections[3].to = "tg";
-    delete d.connections[3].color;
-    delete d.connections[3].lineStyle;
-    entity(d, "legend").entries = entity(d, "legend").entries.filter(
-      (e) => e.text !== "Алерты и уведомления, точки",
-    );
+    const alert = connection(d, 3);
+    alert.to = "tg";
+    delete alert.color;
+    delete alert.lineStyle;
+    const legend = legendOf(d);
+    legend.entries = legend.entries.filter((e) => e.text !== "Алерты и уведомления, точки");
   }],
 ];
 
@@ -69,8 +85,8 @@ for (const [name, id, mutate] of violations) {
     const doc = validDoc();
     mutate(doc);
     const problems = checkDiagram(doc);
-    assert.equal(problems.length, 1, problems.join("\n"));
-    assert.ok(problems[0].startsWith(`${id}:`), problems[0]);
+    expect(problems).toHaveLength(1);
+    expect(problems[0]?.startsWith(`${id}:`)).toBe(true);
   });
 }
 
@@ -78,9 +94,6 @@ test("the missing-legend message includes the expected entries", () => {
   const doc = validDoc();
   doc.entities = doc.entities.filter((e) => e.tag !== "Legend");
   const problems = checkDiagram(doc);
-  assert.equal(problems.length, 1, problems.join("\n"));
-  assert.ok(
-    problems[0].includes('entries: [{"text":"Наша инфраструктура"'),
-    problems[0],
-  );
+  expect(problems).toHaveLength(1);
+  expect(problems[0]).toContain('entries: [{"text":"Наша инфраструктура"');
 });

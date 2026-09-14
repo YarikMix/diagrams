@@ -1,20 +1,18 @@
 // Проверяет цветовую конвенцию во всех diagrams/*.json.
 // Спека: docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md §4.5.
-// Использование: bun scripts/check-colors.mjs
-import { readFileSync, readdirSync } from "node:fs";
-import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { isDeepStrictEqual } from "node:util";
-import { FLOWS, ZONES, expectedLegend, flowOf, indexById } from "./colors.ts";
+// Использование: bun scripts/check-colors.ts
+import { join } from "node:path";
+import { FLOW_BY_KEY, ZONES, expectedLegend, flowOf, indexById } from "./colors.ts";
+import type { DiagramDoc, Entity, GroupEntity } from "./diagram.ts";
 
-const ZONE_COLORS = ZONES.map((z) => z.color);
-const FLOW_BY_KEY = Object.fromEntries(FLOWS.map((f) => [f.key, f]));
-const show = (value) => (value === undefined ? "none" : String(value));
+const ZONE_COLORS: readonly string[] = ZONES.map((z) => z.color);
+const isZoneColor = (value: unknown): boolean => typeof value === "string" && ZONE_COLORS.includes(value);
+const show = (value: unknown): string => (value === undefined ? "none" : String(value));
 
-function checkGroup(group, byId, problems) {
+function checkGroup(group: GroupEntity, byId: Readonly<Record<string, Entity>>, problems: string[]): boolean {
   let hadProblem = false;
   if (!group.containerId) {
-    if (!ZONE_COLORS.includes(group.color)) {
+    if (!isZoneColor(group.color)) {
       problems.push(`${group.id}: top-level group color must be one of ${ZONE_COLORS.join(", ")}, got ${show(group.color)}`);
       hadProblem = true;
     }
@@ -25,7 +23,7 @@ function checkGroup(group, byId, problems) {
     return hadProblem;
   }
   const parentColor = byId[group.containerId]?.color;
-  if (ZONE_COLORS.includes(parentColor) && group.color !== parentColor) {
+  if (isZoneColor(parentColor) && group.color !== parentColor) {
     problems.push(`${group.id}: nested group color must equal ${group.containerId} color ${show(parentColor)}, got ${show(group.color)}`);
     hadProblem = true;
   }
@@ -36,9 +34,10 @@ function checkGroup(group, byId, problems) {
   return hadProblem;
 }
 
-function checkLegend(doc, problems, skipEntries) {
+function checkLegend(doc: DiagramDoc, problems: string[], skipEntries: boolean): void {
   const legends = doc.entities.filter((e) => e.tag === "Legend");
-  if (legends.length !== 1) {
+  const [legend] = legends;
+  if (legends.length !== 1 || !legend) {
     if (legends.length === 0) {
       problems.push(`legend: expected exactly one Legend, found 0; entries: ${JSON.stringify(expectedLegend(doc))}`);
     } else {
@@ -46,24 +45,23 @@ function checkLegend(doc, problems, skipEntries) {
     }
     return;
   }
-  const [legend] = legends;
   if (legend.id !== "legend") {
     problems.push(`${legend.id}: Legend id must be "legend"`);
   }
-  for (const field of ["color", "containerId", "styleMode"]) {
+  for (const field of ["color", "containerId", "styleMode"] as const) {
     if (legend[field] !== undefined) {
       problems.push(`${legend.id}: Legend must not set ${field}`);
     }
   }
   if (skipEntries) return;
   const expected = expectedLegend(doc);
-  if (!isDeepStrictEqual(legend.entries, expected)) {
+  if (!Bun.deepEquals(legend.entries, expected)) {
     problems.push(`${legend.id}: entries must be ${JSON.stringify(expected)}`);
   }
 }
 
-export function checkDiagram(doc) {
-  const problems = [];
+export function checkDiagram(doc: DiagramDoc): string[] {
+  const problems: string[] = [];
   const byId = indexById(doc);
   let hasGroupProblem = false;
   for (const entity of doc.entities) {
@@ -89,11 +87,11 @@ export function checkDiagram(doc) {
   return problems;
 }
 
-function main() {
-  const names = readdirSync("diagrams").filter((name) => name.endsWith(".json")).sort();
+async function main(): Promise<number> {
+  const names = [...new Bun.Glob("*.json").scanSync("diagrams")].sort();
   let failures = 0;
   for (const name of names) {
-    const doc = JSON.parse(readFileSync(join("diagrams", name), "utf8"));
+    const doc = (await Bun.file(join("diagrams", name)).json()) as DiagramDoc;
     for (const problem of checkDiagram(doc)) {
       console.error(`diagrams/${name} ${problem}`);
       failures += 1;
@@ -104,6 +102,6 @@ function main() {
   return 0;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  process.exit(main());
+if (import.meta.main) {
+  process.exit(await main());
 }

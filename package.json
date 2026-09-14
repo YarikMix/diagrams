@@ -7,7 +7,7 @@
     "test": "bun test",
     "typecheck": "tsc",
     "validate": "bun scripts/eraser.mjs validate",
-    "check": "bun scripts/check-colors.mjs",
+    "check": "bun scripts/check-colors.ts",
     "render": "bun scripts/eraser.mjs render -f html && bun scripts/eraser.mjs render -f png",
     "index": "bun scripts/build-index.mjs",
     "build": "bun run validate && bun run check && bun run render && bun run index",
