@@ -26,7 +26,7 @@ test("fetchAllIcons follows nextPageToken, dedupes and sorts", async () => {
   expect(names).toEqual(["aws", "go", "zulu"]);
   expect(calls).toHaveLength(2);
   expect(calls[0]).toBe(LIST_URL);
-  expect(calls[1]?.endsWith("&pageToken=tok1")).toBe(true);
+  expect(calls[1]).toEndWith("&pageToken=tok1");
 });
 
 test("fetchAllIcons throws on non-2xx", async () => {

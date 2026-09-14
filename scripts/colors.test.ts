@@ -82,5 +82,5 @@ test("PALETTE_HEX matches the palette of the installed eraser-diagrams engine", 
 test("DEFAULT_EDGE_HEX is still the engine's default arrow color", async () => {
   const normalizersUrl = new URL("../node_modules/@eraserlabs/diagrams/dist/library/normalizers.js", import.meta.url);
   const source = await Bun.file(normalizersUrl).text();
-  expect(source.includes(DEFAULT_EDGE_HEX)).toBe(true);
+  expect(source).toContain(DEFAULT_EDGE_HEX);
 });

@@ -86,7 +86,7 @@ for (const [name, id, mutate] of violations) {
     mutate(doc);
     const problems = checkDiagram(doc);
     expect(problems).toHaveLength(1);
-    expect(problems[0]?.startsWith(`${id}:`)).toBe(true);
+    expect(problems[0]).toStartWith(`${id}:`);
   });
 }
 

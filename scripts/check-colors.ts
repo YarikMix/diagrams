@@ -55,7 +55,7 @@ function checkLegend(doc: DiagramDoc, problems: string[], skipEntries: boolean):
   }
   if (skipEntries) return;
   const expected = expectedLegend(doc);
-  if (!Bun.deepEquals(legend.entries, expected)) {
+  if (!Bun.deepEquals(legend.entries, expected, true)) {
     problems.push(`${legend.id}: entries must be ${JSON.stringify(expected)}`);
   }
 }
