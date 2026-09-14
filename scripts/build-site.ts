@@ -140,16 +140,17 @@ function run(cmd: string[], options: { cwd?: string; timeout?: number } = {}): O
   }
 }
 
-// Запускает git и возвращает stdout, или null и печатает причину.
-function gitOutput(args: string[]): string | null {
+type GitResult = { ok: true; stdout: string } | { ok: false; detail: string };
+
+// Запускает git с перехватом вывода; отсутствие git в bun приходит исключением.
+function git(args: string[]): GitResult {
   try {
     const result = Bun.spawnSync(["git", ...args], { stdout: "pipe", stderr: "pipe" });
-    if (result.exitCode === 0) return result.stdout.toString();
-    console.error(`git ${args.join(" ")}: ${result.stderr.toString()}`);
-    return null;
+    return result.exitCode === 0
+      ? { ok: true, stdout: result.stdout.toString() }
+      : { ok: false, detail: result.stderr.toString() };
   } catch (error) {
-    console.error(`git ${args.join(" ")}: ${errorMessage(error)}`);
-    return null;
+    return { ok: false, detail: errorMessage(error) };
   }
 }
 
@@ -201,17 +202,18 @@ async function main(argv: string[]): Promise<number> {
     console.error("site: main build failed");
     return 1;
   }
-  const shallow = gitOutput(["rev-parse", "--is-shallow-repository"])?.trim() === "true";
+  const shallowCheck = git(["rev-parse", "--is-shallow-repository"]);
+  const shallow = shallowCheck.ok && shallowCheck.stdout.trim() === "true";
   if (run(["git", ...fetchArgs(shallow)]) !== "ok") {
     console.error("site: git fetch failed");
     return 1;
   }
-  const refs = gitOutput(["for-each-ref", "--format=%(refname:strip=3) %(objectname)", "refs/remotes/origin"]);
-  if (refs === null) {
-    console.error("site: git for-each-ref failed");
+  const refs = git(["for-each-ref", "--format=%(refname:strip=3) %(objectname)", "refs/remotes/origin"]);
+  if (!refs.ok) {
+    console.error(`site: git for-each-ref failed: ${refs.detail}`);
     return 1;
   }
-  const branches = assignSlugs(parseBranches(refs));
+  const branches = assignSlugs(parseBranches(refs.stdout));
   const previewsDir = join("dist", "branches");
   rmSync(previewsDir, { recursive: true, force: true });
 
