@@ -11,7 +11,7 @@
     "render": "bun scripts/eraser.ts render -f html && bun scripts/eraser.ts render -f png",
     "index": "bun scripts/build-index.ts",
     "build": "bun run validate && bun run check && bun run render && bun run index",
-    "site": "bun scripts/build-site.mjs",
+    "site": "bun scripts/build-site.ts",
     "icons": "bun scripts/fetch-icons.ts"
   },
   "devDependencies": {

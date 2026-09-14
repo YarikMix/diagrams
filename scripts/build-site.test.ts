@@ -1,5 +1,4 @@
-import test from "node:test";
-import assert from "node:assert/strict";
+import { expect, test } from "bun:test";
 import {
   assignSlugs,
   branchSlug,
@@ -8,27 +7,27 @@ import {
   parseBranches,
   renderPreviewsIndex,
   renderSummary,
-} from "./build-site.mjs";
+} from "./build-site.ts";
 
 test("branchSlug replaces unsafe characters with single dashes and trims them", () => {
-  assert.equal(branchSlug("feature/bun-and-colors"), "feature-bun-and-colors");
-  assert.equal(branchSlug("fix//a b"), "fix-a-b");
-  assert.equal(branchSlug("a--b"), "a-b");
-  assert.equal(branchSlug("-a-"), "a");
-  assert.equal(branchSlug("v1.2_rc"), "v1.2_rc");
+  expect(branchSlug("feature/bun-and-colors")).toBe("feature-bun-and-colors");
+  expect(branchSlug("fix//a b")).toBe("fix-a-b");
+  expect(branchSlug("a--b")).toBe("a-b");
+  expect(branchSlug("-a-")).toBe("a");
+  expect(branchSlug("v1.2_rc")).toBe("v1.2_rc");
 });
 
 test("branchSlug falls back to branch when nothing safe is left", () => {
-  assert.equal(branchSlug("схемы/новые"), "branch");
+  expect(branchSlug("схемы/новые")).toBe("branch");
 });
 
 test("branchSlug turns a slug made only of dots into branch", () => {
-  assert.equal(branchSlug("ы.ы"), "branch");
+  expect(branchSlug("ы.ы")).toBe("branch");
 });
 
 test("fetchArgs adds --depth=1 only for a shallow clone and always prunes", () => {
-  assert.deepEqual(fetchArgs(true), ["fetch", "--depth=1", "--no-tags", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*"]);
-  assert.deepEqual(fetchArgs(false), ["fetch", "--no-tags", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*"]);
+  expect(fetchArgs(true)).toEqual(["fetch", "--depth=1", "--no-tags", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*"]);
+  expect(fetchArgs(false)).toEqual(["fetch", "--no-tags", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*"]);
 });
 
 test("assignSlugs sorts by name and suffixes a colliding slug with the short sha", () => {
@@ -36,7 +35,7 @@ test("assignSlugs sorts by name and suffixes a colliding slug with the short sha
     { name: "a/b", sha: "1111111aaaa" },
     { name: "a-b", sha: "2222222bbbb" },
   ]);
-  assert.deepEqual(result, [
+  expect(result).toEqual([
     { name: "a-b", sha: "2222222bbbb", slug: "a-b" },
     { name: "a/b", sha: "1111111aaaa", slug: "a-b-1111111" },
   ]);
@@ -44,19 +43,19 @@ test("assignSlugs sorts by name and suffixes a colliding slug with the short sha
 
 test("assignSlugs never gives a branch the slug of the previews index file", () => {
   const [entry] = assignSlugs([{ name: "index.html", sha: "3333333cccc" }]);
-  assert.equal(entry.slug, "index.html-3333333");
+  expect(entry?.slug).toBe("index.html-3333333");
 });
 
 test("parseBranches skips HEAD and main and keeps names with slashes", () => {
   const output = "HEAD 0000000\nfeature/x 1111111\nmain 2222222\r\nfix 3333333\n";
-  assert.deepEqual(parseBranches(output), [
+  expect(parseBranches(output)).toEqual([
     { name: "feature/x", sha: "1111111" },
     { name: "fix", sha: "3333333" },
   ]);
 });
 
 test("escapeHtml escapes the five HTML-significant characters", () => {
-  assert.equal(escapeHtml(`&<>"'`), "&amp;&lt;&gt;&quot;&#39;");
+  expect(escapeHtml(`&<>"'`)).toBe("&amp;&lt;&gt;&quot;&#39;");
 });
 
 test("renderPreviewsIndex links built branches and marks failed ones with the step", () => {
@@ -64,15 +63,15 @@ test("renderPreviewsIndex links built branches and marks failed ones with the st
     { name: "feature/x", slug: "feature-x", sha: "abcdef0123", status: "ok" },
     { name: "a<b>", slug: "a-b", sha: "1234567890", status: "failed", failedStep: "bun install" },
   ]);
-  assert.match(html, /^<!doctype html>/i);
-  assert.match(html, /<a href="feature-x\/">feature\/x<\/a> <code>abcdef0<\/code>/);
-  assert.match(html, /a&lt;b&gt; \(не собралась: bun install\)/);
-  assert.match(html, /href="\.\.\/"/);
-  assert.doesNotMatch(html, /<script|<link/);
+  expect(html).toMatch(/^<!doctype html>/i);
+  expect(html).toMatch(/<a href="feature-x\/">feature\/x<\/a> <code>abcdef0<\/code>/);
+  expect(html).toMatch(/a&lt;b&gt; \(не собралась: bun install\)/);
+  expect(html).toMatch(/href="\.\.\/"/);
+  expect(html).not.toMatch(/<script|<link/);
 });
 
 test("renderPreviewsIndex says there are no other branches for an empty list", () => {
-  assert.match(renderPreviewsIndex([]), /Других веток нет\./);
+  expect(renderPreviewsIndex([])).toMatch(/Других веток нет\./);
 });
 
 test("renderSummary lists every branch with its preview path or failed step", () => {
@@ -80,6 +79,6 @@ test("renderSummary lists every branch with its preview path or failed step", ()
     { name: "feature/x", slug: "feature-x", sha: "abc", status: "ok" },
     { name: "old", slug: "old", sha: "def", status: "failed", failedStep: "bun install" },
   ]);
-  assert.match(summary, /- `feature\/x`: branches\/feature-x\//);
-  assert.match(summary, /- `old`: не собралась на шаге bun install/);
+  expect(summary).toMatch(/- `feature\/x`: branches\/feature-x\//);
+  expect(summary).toMatch(/- `old`: не собралась на шаге bun install/);
 });
