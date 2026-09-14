@@ -9,7 +9,7 @@
     "validate": "bun scripts/eraser.mjs validate",
     "check": "bun scripts/check-colors.ts",
     "render": "bun scripts/eraser.mjs render -f html && bun scripts/eraser.mjs render -f png",
-    "index": "bun scripts/build-index.mjs",
+    "index": "bun scripts/build-index.ts",
     "build": "bun run validate && bun run check && bun run render && bun run index",
     "site": "bun scripts/build-site.mjs",
     "icons": "bun scripts/fetch-icons.mjs"

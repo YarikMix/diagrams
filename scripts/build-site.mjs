@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { diagramNames, renderIndex } from "./build-index.mjs";
+import { diagramNames, renderIndex } from "./build-index.ts";
 
 const MAIN_BRANCH = "main";
 const BRANCH_STEP_TIMEOUT_MS = 5 * 60 * 1000;

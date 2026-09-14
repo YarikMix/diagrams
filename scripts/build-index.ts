@@ -1,18 +1,13 @@
 // Собирает dist/index.html: заголовок, ссылки на <name>.html и <name>.png,
 // превью PNG. Один статичный файл, CSS встроен, зависимостей нет.
-// Использование: bun scripts/build-index.mjs
-import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+// Использование: bun scripts/build-index.ts
+import { join } from "node:path";
 
-export function diagramNames(dir = "diagrams") {
-  return readdirSync(dir)
-    .filter((name) => name.endsWith(".json"))
-    .sort()
-    .map((name) => name.slice(0, -".json".length));
+export function diagramNames(dir = "diagrams"): string[] {
+  return [...new Bun.Glob("*.json").scanSync(dir)].sort().map((name) => name.slice(0, -".json".length));
 }
 
-export function renderIndex(names, options = {}) {
+export function renderIndex(names: readonly string[], options: { previewsHref?: string } = {}): string {
   const cards = names
     .map(
       (name) => `    <section class="card">
@@ -47,10 +42,8 @@ ${cards}${previews}
 `;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const outDir = "dist";
-  mkdirSync(outDir, { recursive: true });
+if (import.meta.main) {
   const names = diagramNames();
-  writeFileSync(join(outDir, "index.html"), renderIndex(names));
+  await Bun.write(join("dist", "index.html"), renderIndex(names));
   console.error(`dist/index.html: ${names.length} diagrams`);
 }
