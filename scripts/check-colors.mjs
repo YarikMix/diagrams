@@ -5,7 +5,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual } from "node:util";
-import { FLOWS, ZONES, expectedLegend, flowOf, indexById } from "./colors.mjs";
+import { FLOWS, ZONES, expectedLegend, flowOf, indexById } from "./colors.ts";
 
 const ZONE_COLORS = ZONES.map((z) => z.color);
 const FLOW_BY_KEY = Object.fromEntries(FLOWS.map((f) => [f.key, f]));
