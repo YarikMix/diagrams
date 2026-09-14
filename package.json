@@ -12,7 +12,7 @@
     "index": "bun scripts/build-index.ts",
     "build": "bun run validate && bun run check && bun run render && bun run index",
     "site": "bun scripts/build-site.mjs",
-    "icons": "bun scripts/fetch-icons.mjs"
+    "icons": "bun scripts/fetch-icons.ts"
   },
   "devDependencies": {
     "@eraserlabs/diagrams-cli": "0.1.0",
