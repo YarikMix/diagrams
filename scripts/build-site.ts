@@ -1,12 +1,11 @@
 // Собирает сайт Pages: main в dist/, каждую ветку origin в dist/branches/<slug>/.
 // Спека: docs/superpowers/specs/2026-09-13-branch-previews-design.md §4.
-// Использование: bun scripts/build-site.mjs [--main-built]
-import { appendFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+// Использование: bun scripts/build-site.ts [--main-built]
+// У bun нет своих API для копирования и удаления каталогов, временных каталогов и дописывания в файл: там node:fs.
+import { appendFileSync, cpSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
-import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
-import { diagramNames, renderIndex } from "./build-index.mjs";
+import { join } from "node:path";
+import { diagramNames, renderIndex } from "./build-index.ts";
 
 const MAIN_BRANCH = "main";
 const BRANCH_STEP_TIMEOUT_MS = 5 * 60 * 1000;
@@ -15,7 +14,19 @@ const ICON_CACHE_DIR = join(".eraser", "icons");
 // Имя, которое slug ветки занимать не может: там лежит список превью.
 const RESERVED_SLUGS = ["index.html"];
 
-export function branchSlug(name) {
+export interface Branch {
+  name: string;
+  sha: string;
+}
+
+export interface SluggedBranch extends Branch {
+  slug: string;
+}
+
+export type BuildResult = { status: "ok" } | { status: "failed"; failedStep: string };
+export type PreviewEntry = SluggedBranch & BuildResult;
+
+export function branchSlug(name: string): string {
   const slug = name
     .replace(/[^A-Za-z0-9._-]+/g, "-")
     .replace(/-+/g, "-")
@@ -23,7 +34,7 @@ export function branchSlug(name) {
   return slug && !/^\.+$/.test(slug) ? slug : "branch";
 }
 
-export function assignSlugs(branches) {
+export function assignSlugs(branches: readonly Branch[]): SluggedBranch[] {
   const used = new Set(RESERVED_SLUGS);
   return [...branches]
     .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
@@ -36,7 +47,7 @@ export function assignSlugs(branches) {
 }
 
 // Разбирает вывод `git for-each-ref --format=%(refname:strip=3) %(objectname) refs/remotes/origin`.
-export function parseBranches(output) {
+export function parseBranches(output: string): Branch[] {
   return output
     .split(/\r?\n/)
     .map((line) => line.trim())
@@ -49,12 +60,12 @@ export function parseBranches(output) {
 }
 
 // Аргументы git fetch: --depth=1 только для неглубокого клона, чтобы локальный запуск не обрезал историю.
-export function fetchArgs(shallow) {
+export function fetchArgs(shallow: boolean): string[] {
   return ["fetch", ...(shallow ? ["--depth=1"] : []), "--no-tags", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*"];
 }
 
-export function escapeHtml(text) {
-  return String(text)
+export function escapeHtml(text: string): string {
+  return text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -62,7 +73,7 @@ export function escapeHtml(text) {
     .replace(/'/g, "&#39;");
 }
 
-export function renderPreviewsIndex(entries) {
+export function renderPreviewsIndex(entries: readonly PreviewEntry[]): string {
   const list =
     entries.length === 0
       ? "  <p>Других веток нет.</p>"
@@ -101,7 +112,7 @@ ${list}
 `;
 }
 
-export function renderSummary(entries) {
+export function renderSummary(entries: readonly PreviewEntry[]): string {
   const lines = entries.map((entry) =>
     entry.status === "ok"
       ? `- \`${entry.name}\`: branches/${entry.slug}/`
@@ -110,95 +121,104 @@ export function renderSummary(entries) {
   return ["### Превью веток", "", ...(lines.length ? lines : ["Других веток нет."]), ""].join("\n");
 }
 
-// bun и node при таймауте спавна отдают result.error.code === "ETIMEDOUT" и signal "SIGKILL".
-function isTimeout(result, options) {
-  return Boolean(options.timeout) && result.error?.code === "ETIMEDOUT";
-}
+type Outcome = "ok" | "failed" | "timeout";
 
-// Возвращает "ok", "failed" или "timeout".
-function run(cmd, args, options = {}) {
-  const result = spawnSync(cmd, args, { stdio: "inherit", killSignal: "SIGKILL", ...options });
-  if (isTimeout(result, options)) {
-    console.error(`${cmd} ${args.join(" ")}: timed out`);
-    return "timeout";
-  }
-  if (result.error) {
-    console.error(`${cmd} ${args.join(" ")}: ${result.error.message}`);
+const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
+// Возвращает "ok", "failed" или "timeout". Отсутствующая программа в bun приходит исключением.
+function run(cmd: string[], options: { cwd?: string; timeout?: number } = {}): Outcome {
+  try {
+    const result = Bun.spawnSync(cmd, { stdio: ["inherit", "inherit", "inherit"], killSignal: "SIGKILL", ...options });
+    if (result.exitedDueToTimeout) {
+      console.error(`${cmd.join(" ")}: timed out`);
+      return "timeout";
+    }
+    return result.exitCode === 0 ? "ok" : "failed";
+  } catch (error) {
+    console.error(`${cmd.join(" ")}: ${errorMessage(error)}`);
     return "failed";
   }
-  return result.status === 0 ? "ok" : "failed";
 }
 
-function stepFailure(step, outcome) {
+type GitResult = { ok: true; stdout: string } | { ok: false; detail: string };
+
+// Запускает git с перехватом вывода; отсутствие git в bun приходит исключением.
+function git(args: string[]): GitResult {
+  try {
+    const result = Bun.spawnSync(["git", ...args], { stdout: "pipe", stderr: "pipe" });
+    return result.exitCode === 0
+      ? { ok: true, stdout: result.stdout.toString() }
+      : { ok: false, detail: result.stderr.toString() };
+  } catch (error) {
+    return { ok: false, detail: errorMessage(error) };
+  }
+}
+
+function stepFailure(step: string, outcome: Outcome): BuildResult {
   return { status: "failed", failedStep: outcome === "timeout" ? `${step} (timeout)` : step };
 }
 
-function buildBranch(branch, tmpRoot) {
+function buildBranch(branch: SluggedBranch, tmpRoot: string): BuildResult {
   const dir = join(tmpRoot, branch.slug);
-  const worktreeOutcome = run("git", ["worktree", "add", "--detach", dir, branch.sha]);
+  const worktreeOutcome = run(["git", "worktree", "add", "--detach", dir, branch.sha]);
   if (worktreeOutcome !== "ok") {
     return stepFailure("worktree", worktreeOutcome);
   }
   try {
     const options = { cwd: dir, timeout: BRANCH_STEP_TIMEOUT_MS };
-    const installOutcome = run("bun", ["install", "--frozen-lockfile"], options);
+    const installOutcome = run(["bun", "install", "--frozen-lockfile"], options);
     if (installOutcome !== "ok") return stepFailure("bun install", installOutcome);
     // Кэш иконок основной сборки: ветке не нужно заново качать те же SVG.
     if (existsSync(ICON_CACHE_DIR)) {
       try {
         cpSync(ICON_CACHE_DIR, join(dir, ICON_CACHE_DIR), { recursive: true });
       } catch (error) {
-        console.error(`site: icon cache not copied for ${branch.name}: ${error.message}`);
+        console.error(`site: icon cache not copied for ${branch.name}: ${errorMessage(error)}`);
       }
     }
-    const buildOutcome = run("bun", ["run", "build"], options);
+    const buildOutcome = run(["bun", "run", "build"], options);
     if (buildOutcome !== "ok") return stepFailure("bun run build", buildOutcome);
     if (!existsSync(join(dir, "dist", "index.html"))) return { status: "failed", failedStep: "dist" };
     try {
       cpSync(join(dir, "dist"), join("dist", "branches", branch.slug), { recursive: true });
     } catch (error) {
-      console.error(`site: copying ${branch.name} failed: ${error.message}`);
+      console.error(`site: copying ${branch.name} failed: ${errorMessage(error)}`);
       return { status: "failed", failedStep: "copy" };
     }
     return { status: "ok" };
   } finally {
-    run("git", ["worktree", "remove", "--force", dir]);
+    run(["git", "worktree", "remove", "--force", dir]);
   }
 }
 
-function main(argv) {
+async function main(argv: string[]): Promise<number> {
   const started = Date.now();
   if (argv.includes("--main-built")) {
     if (!existsSync(join("dist", "index.html"))) {
       console.error("site: --main-built given but dist/index.html is missing");
       return 1;
     }
-  } else if (run("bun", ["run", "build"]) !== "ok") {
+  } else if (run(["bun", "run", "build"]) !== "ok") {
     console.error("site: main build failed");
     return 1;
   }
-  const shallow =
-    spawnSync("git", ["rev-parse", "--is-shallow-repository"], { encoding: "utf8" }).stdout?.trim() === "true";
-  if (run("git", fetchArgs(shallow)) !== "ok") {
+  const shallowCheck = git(["rev-parse", "--is-shallow-repository"]);
+  const shallow = shallowCheck.ok && shallowCheck.stdout.trim() === "true";
+  if (run(["git", ...fetchArgs(shallow)]) !== "ok") {
     console.error("site: git fetch failed");
     return 1;
   }
-  const refs = spawnSync(
-    "git",
-    ["for-each-ref", "--format=%(refname:strip=3) %(objectname)", "refs/remotes/origin"],
-    { encoding: "utf8" },
-  );
-  if (refs.error || refs.status !== 0) {
-    console.error(`site: git for-each-ref failed: ${refs.error?.message ?? refs.stderr}`);
+  const refs = git(["for-each-ref", "--format=%(refname:strip=3) %(objectname)", "refs/remotes/origin"]);
+  if (!refs.ok) {
+    console.error(`site: git for-each-ref failed: ${refs.detail}`);
     return 1;
   }
   const branches = assignSlugs(parseBranches(refs.stdout));
   const previewsDir = join("dist", "branches");
   rmSync(previewsDir, { recursive: true, force: true });
-  mkdirSync(previewsDir, { recursive: true });
 
   const tmpRoot = mkdtempSync(join(tmpdir(), "diagrams-previews-"));
-  const entries = [];
+  const entries: PreviewEntry[] = [];
   try {
     for (const branch of branches) {
       if (Date.now() - started > SITE_BRANCH_BUDGET_MS) {
@@ -210,16 +230,16 @@ function main(argv) {
       entries.push({ ...branch, ...buildBranch(branch, tmpRoot) });
     }
   } finally {
-    run("git", ["worktree", "prune"]);
+    run(["git", "worktree", "prune"]);
     try {
       rmSync(tmpRoot, { recursive: true, force: true, maxRetries: 3 });
     } catch (error) {
-      console.error(`site: temp dir not removed: ${error.message}`);
+      console.error(`site: temp dir not removed: ${errorMessage(error)}`);
     }
   }
 
-  writeFileSync(join(previewsDir, "index.html"), renderPreviewsIndex(entries));
-  writeFileSync(join("dist", "index.html"), renderIndex(diagramNames(), { previewsHref: "branches/" }));
+  await Bun.write(join(previewsDir, "index.html"), renderPreviewsIndex(entries));
+  await Bun.write(join("dist", "index.html"), renderIndex(diagramNames(), { previewsHref: "branches/" }));
   if (process.env.GITHUB_STEP_SUMMARY) {
     appendFileSync(process.env.GITHUB_STEP_SUMMARY, renderSummary(entries));
   }
@@ -228,6 +248,6 @@ function main(argv) {
   return 0;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  process.exit(main(process.argv.slice(2)));
+if (import.meta.main) {
+  process.exit(await main(process.argv.slice(2)));
 }

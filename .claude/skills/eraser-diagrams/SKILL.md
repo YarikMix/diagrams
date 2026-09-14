@@ -60,7 +60,7 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
    накладываются, все узлы внутри своих групп, заголовки групп не обрезаны,
    подписи читаемы, легенда ничего не перекрывает.
 6. Поправь координаты (кратно 20), повтори с шага 2.
-7. Перед коммитом: `bun run test` и `bun run build` (то же, что делает CI).
+7. Перед коммитом: `bun run typecheck`, `bun run test` и `bun run build` (то же, что делает CI).
 8. После push ветки превью появится через несколько минут по адресу
    `https://yarikmix.github.io/diagrams/branches/<slug>/`, где slug это имя
    ветки, в котором всё, кроме латиницы, цифр, `.`, `_` и `-`, заменено на
@@ -69,7 +69,7 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
 
 ## Цвета
 
-Источник истины: `scripts/colors.mjs`, проверка: `bun run check`.
+Источник истины: `scripts/colors.ts`, проверка: `bun run check`.
 Спека: `docs/superpowers/specs/2026-09-13-diagram-colors-and-bun-design.md` §4.
 
 Группы красятся по зоне владения:
@@ -102,7 +102,7 @@ description: Use when creating or editing diagrams/*.json (eraser-diagrams JSON)
 Легенда: ровно один элемент `"tag": "Legend"` с `"id": "legend"`, явными
 `x`, `y` и `"width": 340`, без `color`, `containerId`, `styleMode`. Ставь её
 справа от содержимого на `y: 0`. Пункты: только зоны верхних групп и типы
-стрелок, которые есть на схеме, с текстом и hex из `scripts/colors.mjs`.
+стрелок, которые есть на схеме, с текстом и hex из `scripts/colors.ts`.
 Если правка поменяла состав зон или типов стрелок, `bun run check`
 напечатает нужный массив `entries`; скопируй его в легенду.
 

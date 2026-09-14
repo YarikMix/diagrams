@@ -5,15 +5,18 @@
   "engines": { "node": ">=22.12", "bun": ">=1.3" },
   "scripts": {
     "test": "bun test",
-    "validate": "bun scripts/eraser.mjs validate",
-    "check": "bun scripts/check-colors.mjs",
-    "render": "bun scripts/eraser.mjs render -f html && bun scripts/eraser.mjs render -f png",
-    "index": "bun scripts/build-index.mjs",
+    "typecheck": "tsc",
+    "validate": "bun scripts/eraser.ts validate",
+    "check": "bun scripts/check-colors.ts",
+    "render": "bun scripts/eraser.ts render -f html && bun scripts/eraser.ts render -f png",
+    "index": "bun scripts/build-index.ts",
     "build": "bun run validate && bun run check && bun run render && bun run index",
-    "site": "bun scripts/build-site.mjs",
-    "icons": "bun scripts/fetch-icons.mjs"
+    "site": "bun scripts/build-site.ts",
+    "icons": "bun scripts/fetch-icons.ts"
   },
   "devDependencies": {
-    "@eraserlabs/diagrams-cli": "0.1.0"
+    "@eraserlabs/diagrams-cli": "0.1.0",
+    "@types/bun": "1.4.2",
+    "typescript": "7.0.2"
   }
 }
