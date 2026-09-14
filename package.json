@@ -6,9 +6,9 @@
   "scripts": {
     "test": "bun test",
     "typecheck": "tsc",
-    "validate": "bun scripts/eraser.mjs validate",
+    "validate": "bun scripts/eraser.ts validate",
     "check": "bun scripts/check-colors.ts",
-    "render": "bun scripts/eraser.mjs render -f html && bun scripts/eraser.mjs render -f png",
+    "render": "bun scripts/eraser.ts render -f html && bun scripts/eraser.ts render -f png",
     "index": "bun scripts/build-index.ts",
     "build": "bun run validate && bun run check && bun run render && bun run index",
     "site": "bun scripts/build-site.mjs",
